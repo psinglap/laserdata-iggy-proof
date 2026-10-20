@@ -1,0 +1,2 @@
+system,rate_msgs,p50_ms,p99_ms,p999_ms
+# Use system names like "iggy-persisted" and "kafka-persisted". No numbers are pre-filled on purpose.

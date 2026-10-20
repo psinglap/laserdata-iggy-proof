@@ -1,0 +1,5 @@
+scrape_configs:
+  - job_name: iggy-lag-exporter
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["iggy-lag-exporter:9108"]

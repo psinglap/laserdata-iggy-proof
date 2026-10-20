@@ -1,0 +1,74 @@
+# Apache Iggy with TLS on every exposed listener, a named admin instead of the
+# development defaults, and least-privilege service users that log in with
+# personal access tokens. From LaserData.
+services:
+  iggy:
+    image: apache/iggy:0.9.0
+    cap_add: [SYS_NICE]                 # io_uring + core pinning
+    security_opt: ["seccomp=unconfined"]
+    ulimits:
+      memlock: {soft: -1, hard: -1}
+    environment:
+      # Root user: only read on first start, when the data directory is empty.
+      IGGY_ROOT_USERNAME: ${IGGY_ADMIN_USERNAME}
+      IGGY_ROOT_PASSWORD: ${IGGY_ADMIN_PASSWORD}
+      # Binary TCP API, TLS with our own certificate (not the self-signed fallback).
+      IGGY_TCP_ADDRESS: 0.0.0.0:8090
+      IGGY_TCP_TLS_ENABLED: "true"
+      IGGY_TCP_TLS_SELF_SIGNED: "false"
+      IGGY_TCP_TLS_CERT_FILE: /certs/server.pem
+      IGGY_TCP_TLS_KEY_FILE: /certs/server.key
+      # HTTP API (used once, by provision.py, to mint tokens), also TLS.
+      IGGY_HTTP_ADDRESS: 0.0.0.0:3000
+      IGGY_HTTP_TLS_ENABLED: "true"
+      IGGY_HTTP_TLS_CERT_FILE: /certs/server.pem
+      IGGY_HTTP_TLS_KEY_FILE: /certs/server.key
+      # Clients are handed this name in connection metadata. It must be
+      # resolvable by clients and match a name on the server certificate.
+      IGGY_NODE_ADVERTISED_ADDRESS: iggy
+      # QUIC (8080) and WebSocket (8092) keep their default 127.0.0.1 binds,
+      # so they are not reachable from outside the container.
+    volumes:
+      - ./certs/server.pem:/certs/server.pem:ro
+      - ./certs/server.key:/certs/server.key:ro
+      - iggy-data:/app/local_data
+    ports:
+      - "127.0.0.1:8090:8090"
+      - "127.0.0.1:3000:3000"
+
+  provision:
+    build: ./services
+    command: python provision.py
+    environment:
+      IGGY_ADMIN_USERNAME: ${IGGY_ADMIN_USERNAME}
+      IGGY_ADMIN_PASSWORD: ${IGGY_ADMIN_PASSWORD}
+    volumes:
+      - ./certs/ca.pem:/certs/ca.pem:ro
+      - ./secrets:/secrets
+    depends_on: [iggy]
+    profiles: [setup]
+
+  order-api:
+    build: ./services
+    command: python producer.py
+    environment:
+      IGGY_PAT_FILE: /secrets/order-api.pat
+    volumes:
+      - ./certs/ca.pem:/certs/ca.pem:ro
+      - ./secrets/order-api.pat:/secrets/order-api.pat:ro
+    depends_on: [iggy]
+    profiles: [app]
+
+  billing-worker:
+    build: ./services
+    command: python consumer.py
+    environment:
+      IGGY_PAT_FILE: /secrets/billing-worker.pat
+    volumes:
+      - ./certs/ca.pem:/certs/ca.pem:ro
+      - ./secrets/billing-worker.pat:/secrets/billing-worker.pat:ro
+    depends_on: [iggy]
+    profiles: [app]
+
+volumes:
+  iggy-data:

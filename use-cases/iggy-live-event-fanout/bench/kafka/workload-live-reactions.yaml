@@ -1,0 +1,13 @@
+name: live-reactions-2M
+topics: 1
+partitionsPerTopic: 16
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 80
+payloadFile: payload/payload-80b.data
+subscriptionsPerTopic: 1
+consumerPerSubscription: 8
+producersPerTopic: 8
+producerRate: 2000000                    # steps: 100000, 500000, 1000000, 2000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

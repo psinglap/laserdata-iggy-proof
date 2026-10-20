@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Live match</title>
+<style>body{font:16px system-ui;margin:40px;background:#0b1322;color:#e8edf5}b{font-size:48px}.r span{margin-right:14px}</style>
+<p>Match <span id="m">M007</span> · <span id="st">connecting…</span></p>
+<p><b id="score">0 – 0</b></p>
+<p>Odds <span id="odds">–</span></p>
+<p class="r" id="react"></p>
+<script>
+// Open this file in a browser while match_feed.py, aggregator.py and gateway.py run.
+let last = 0; const match = new URLSearchParams(location.search).get('match') || 'M007';
+document.getElementById('m').textContent = match;
+function go() {
+  const ws = new WebSocket(`ws://localhost:8765/?match=${match}&after=${last}`);
+  ws.onopen = () => document.getElementById('st').textContent = 'live';
+  ws.onclose = () => { document.getElementById('st').textContent = 'reconnecting…'; setTimeout(go, 500); };
+  ws.onmessage = e => {
+    const ev = JSON.parse(e.data);
+    if (ev.seq) last = Math.max(last, ev.seq);
+    if (ev.t === 'score') document.getElementById('score').textContent = `${ev.home} – ${ev.away}`;
+    if (ev.t === 'odds') document.getElementById('odds').textContent = `${ev.home} / ${ev.away}`;
+    if (ev.t === 'suspend') document.getElementById('odds').textContent = 'suspended';
+    if (ev.t === 'reactions') document.getElementById('react').innerHTML = Object.entries(ev.counts).map(([k, v]) => `<span>${k} ${v}</span>`).join('');
+  };
+}
+go();
+</script>

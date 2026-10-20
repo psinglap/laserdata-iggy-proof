@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. Run once per producerRate step.
+name: engagement-1M
+topics: 1
+partitionsPerTopic: 64
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 300
+payloadFile: payload/payload-300b.data   # head -c 300 /dev/urandom > payload/payload-300b.data
+subscriptionsPerTopic: 5                 # triggers, segments, personalization, analytics, warehouse
+consumerPerSubscription: 8
+producersPerTopic: 8
+producerRate: 1000000                    # steps: 100000, 500000, 1000000, 2000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

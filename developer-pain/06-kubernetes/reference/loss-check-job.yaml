@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: iggy-loss-check
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: loss-check
+          image: python:3.12-slim
+          command: ["sh", "-c", "pip install -q apache-iggy==0.9.0 && python /check/loss_check.py"]
+          env:
+            - name: IGGY_SEED
+              value: "10.0.1.10:8090"        # any node; the SDK follows leader redirects
+            - name: DURATION_SECONDS
+              value: "900"                   # must outlast the whole rolling upgrade
+            - name: IGGY_USERNAME
+              valueFrom: {secretKeyRef: {name: iggy-cluster-secrets, key: username}}
+            - name: IGGY_PASSWORD
+              valueFrom: {secretKeyRef: {name: iggy-cluster-secrets, key: password}}
+          volumeMounts:
+            - {name: check, mountPath: /check}
+      volumes:
+        - name: check
+          configMap: {name: iggy-loss-check}

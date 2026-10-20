@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. Run once per producerRate step.
+name: rtb-2M
+topics: 1
+partitionsPerTopic: 32
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 300
+payloadFile: payload/payload-300b.data   # head -c 300 /dev/urandom > payload/payload-300b.data
+subscriptionsPerTopic: 8                 # pacing, caps, fraud, reporting, billing, bidder caches...
+consumerPerSubscription: 4
+producersPerTopic: 8
+producerRate: 2000000                    # steps: 250000, 1000000, 2000000, 4000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

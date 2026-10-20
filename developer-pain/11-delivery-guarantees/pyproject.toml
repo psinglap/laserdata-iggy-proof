@@ -1,0 +1,13 @@
+[project]
+name = "iggy-effectively-once"
+version = "0.1.0"
+description = "Effectively-once processing with Apache Iggy: idempotent consumer and outbox, from LaserData"
+requires-python = ">=3.10"
+dependencies = ["apache-iggy>=0.9"]
+
+[project.optional-dependencies]
+test = ["pytest", "testcontainers>=4.15"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = ["integration: needs Docker or IGGY_URL"]

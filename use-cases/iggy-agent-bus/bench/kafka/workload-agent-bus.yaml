@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. Run once per producerRate step.
+name: agent-bus-250K
+topics: 1
+partitionsPerTopic: 64
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 1000
+payloadFile: payload/payload-1Kb.data    # ships with OMB
+subscriptionsPerTopic: 4                 # agents, tools, telephony gateway, evals
+consumerPerSubscription: 8
+producersPerTopic: 8
+producerRate: 250000                     # steps: 25000, 100000, 250000, 500000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

@@ -1,0 +1,17 @@
+{
+  "name": "iggy-node-quickstart",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A small Node.js service on Apache Iggy: keyed producer, consumer group, graceful shutdown. From LaserData.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "producer": "node dist/producer.js",
+    "consumer": "node dist/consumer.js"
+  },
+  "dependencies": { "apache-iggy": "0.10.0" },
+  "devDependencies": { "typescript": "5.6.3", "@types/node": "22.10.2" }
+}

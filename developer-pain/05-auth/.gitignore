@@ -1,0 +1,5 @@
+.env
+certs/*
+!certs/.gitkeep
+secrets/*
+!secrets/.gitkeep

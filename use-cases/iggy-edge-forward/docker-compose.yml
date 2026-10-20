@@ -1,0 +1,22 @@
+# Two Apache Iggy servers: one plays the edge gateway, one the cloud region.
+# The image is published for linux/amd64 and linux/arm64, so the edge one also runs on ARM gateways.
+x-iggy: &iggy
+  image: apache/iggy:0.9.0
+  cap_add: [SYS_NICE]
+  security_opt: [seccomp:unconfined]
+  ulimits:
+    memlock: { soft: -1, hard: -1 }
+  environment:
+    - IGGY_NODE_ADVERTISED_ADDRESS=localhost
+services:
+  iggy-cloud:
+    <<: *iggy
+    container_name: iggy-cloud
+    ports: ["8090:8090"]
+  iggy-edge:
+    <<: *iggy
+    container_name: iggy-edge
+    ports: ["8091:8090"]
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 512M }    # roughly a small edge gateway

@@ -1,0 +1,20 @@
+# Kafka tuned for latency, not throughput, and never weaker durability than the bank's rule (acks=all).
+name: Kafka-low-latency
+driverClass: io.openmessaging.benchmark.driver.kafka.KafkaBenchmarkDriver
+replicationFactor: 3
+topicConfig: |
+  min.insync.replicas=2
+commonConfig: |
+  bootstrap.servers=kafka-1:9092,kafka-2:9092,kafka-3:9092
+producerConfig: |
+  acks=all
+  enable.idempotence=true
+  linger.ms=0
+  batch.size=16384
+  compression.type=none
+  max.in.flight.requests.per.connection=5
+consumerConfig: |
+  auto.offset.reset=earliest
+  enable.auto.commit=true
+  fetch.min.bytes=1
+  fetch.max.wait.ms=0

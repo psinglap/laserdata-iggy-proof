@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. Run once per producerRate step.
+name: inventory-500K
+topics: 1
+partitionsPerTopic: 32
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 150
+payloadFile: payload/payload-150b.data   # head -c 150 /dev/urandom > payload/payload-150b.data
+subscriptionsPerTopic: 6                 # search, product pages, carts, pricing, recs, analytics
+consumerPerSubscription: 4
+producersPerTopic: 8
+producerRate: 500000                     # steps: 50000, 200000, 500000, 1000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

@@ -1,0 +1,16 @@
+# Apache Iggy driver for the OpenMessaging Benchmark.
+name: Iggy
+driverClass: io.openmessaging.benchmark.driver.iggy.IggyBenchmarkDriver
+
+# Server and credentials (Iggy's defaults shown).
+host: localhost
+port: 8090
+username: iggy
+password: iggy
+
+# Every benchmark topic is created inside this stream.
+streamName: omb
+
+# Messages the consumer asks for per poll, and how long it waits after an empty poll.
+pollBatchSize: 1000
+emptyPollBackoffMicros: 100

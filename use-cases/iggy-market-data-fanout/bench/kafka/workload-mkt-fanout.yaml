@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark workload, same shape as run-iggy.sh. Run once per producerRate step.
+name: mkt-fanout-1.6M
+topics: 1
+partitionsPerTopic: 16
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 128
+payloadFile: payload/payload-128b.data   # OMB ships payload-100b; generate a 128 B file with head -c 128 /dev/urandom
+subscriptionsPerTopic: 4                 # 4 desks, each gets every tick
+consumerPerSubscription: 4
+producersPerTopic: 4
+producerRate: 1600000                    # steps: 100000, 500000, 1000000, 1600000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

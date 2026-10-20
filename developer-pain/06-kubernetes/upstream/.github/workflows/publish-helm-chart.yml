@@ -1,0 +1,105 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Packages helm/charts/iggy and pushes it as an OCI artifact to
+# ghcr.io/apache/iggy/charts, then pushes the Artifact Hub repository
+# metadata next to it. Manual, like publish.yml, and dry-run by default.
+name: Publish Helm chart
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit SHA to publish the chart from"
+        type: string
+        required: true
+      dry_run:
+        description: "Lint and package only, push nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: write # push to ghcr.io/apache/iggy/charts
+
+concurrency:
+  group: publish-helm-chart
+  cancel-in-progress: false
+
+env:
+  CHART_DIR: helm/charts/iggy
+  OCI_REPO: oci://ghcr.io/apache/iggy/charts
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.commit }}
+
+      - name: Install Helm and chart tools
+        uses: ./.github/actions/utils/setup-helm-tools
+        with:
+          install-helm-docs: true
+          install-yamllint: true
+          install-helmfmt: true
+
+      - name: Validate chart (same checks as CI)
+        run: scripts/ci/test-helm.sh validate
+
+      - name: Package chart
+        id: pkg
+        run: |
+          VERSION=$(awk '/^version:/ {print $2}' "$CHART_DIR/Chart.yaml")
+          helm package "$CHART_DIR" --destination "$RUNNER_TEMP/chart"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "file=$RUNNER_TEMP/chart/iggy-$VERSION.tgz" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse to overwrite a published chart version
+        if: ${{ !inputs.dry_run }}
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+          if helm show chart "$OCI_REPO/iggy" --version "${{ steps.pkg.outputs.version }}" >/dev/null 2>&1; then
+            echo "::error::iggy chart ${{ steps.pkg.outputs.version }} is already published. Bump version in Chart.yaml."
+            exit 1
+          fi
+
+      - name: Push chart
+        if: ${{ !inputs.dry_run }}
+        run: helm push "${{ steps.pkg.outputs.file }}" "$OCI_REPO"
+
+      - name: Install oras
+        if: ${{ !inputs.dry_run }}
+        uses: oras-project/setup-oras@v1
+
+      - name: Push Artifact Hub repository metadata
+        if: ${{ !inputs.dry_run }}
+        working-directory: ${{ env.CHART_DIR }}
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+          oras push ghcr.io/apache/iggy/charts/iggy:artifacthub.io \
+            --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+            artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+
+      - name: Summary
+        run: |
+          {
+            echo "### Helm chart iggy ${{ steps.pkg.outputs.version }}"
+            if [ "${{ inputs.dry_run }}" = "true" ]; then echo "Dry run: packaged, not pushed."; else
+              echo "helm install iggy $OCI_REPO/iggy --version ${{ steps.pkg.outputs.version }}"; fi
+          } >> "$GITHUB_STEP_SUMMARY"

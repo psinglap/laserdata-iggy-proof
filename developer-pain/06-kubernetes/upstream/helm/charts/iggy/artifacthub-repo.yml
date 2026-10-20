@@ -1,0 +1,8 @@
+# Artifact Hub repository metadata for oci://ghcr.io/apache/iggy/charts/iggy.
+# Pushed by .github/workflows/publish-helm-chart.yml as the `artifacthub.io` tag.
+# After a PMC member adds the repository on artifacthub.io, paste the
+# repository ID it shows here so the listing is marked as verified publisher.
+# repositoryID: <uuid from artifacthub.io>
+owners:
+  - name: Apache Iggy PMC
+    email: dev@iggy.apache.org

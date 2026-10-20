@@ -1,0 +1,23 @@
+groups:
+  - name: apache-iggy-consumer-lag
+    rules:
+      - alert: IggyConsumerGroupLagGrowing
+        # Lag has risen steadily for 15 minutes: the group is consuming slower than producers write.
+        expr: sum by (stream, topic, group) (deriv(iggy_consumer_group_lag[15m])) > 0
+          and sum by (stream, topic, group) (iggy_consumer_group_lag) > 1000
+        for: 15m
+        labels: {severity: warning}
+        annotations:
+          summary: "{{ $labels.group }} on {{ $labels.stream }}/{{ $labels.topic }} is falling behind"
+      - alert: IggyConsumerGroupStalled
+        # Messages are waiting but the committed offset has not moved for 10 minutes.
+        expr: sum by (stream, topic, group) (iggy_consumer_group_lag) > 0
+          and sum by (stream, topic, group) (changes(iggy_consumer_group_committed_offset[10m])) == 0
+        for: 10m
+        labels: {severity: critical}
+        annotations:
+          summary: "{{ $labels.group }} on {{ $labels.stream }}/{{ $labels.topic }} has stopped committing"
+      - alert: IggyLagExporterDown
+        expr: iggy_lag_exporter_up == 0 or absent(iggy_lag_exporter_up)
+        for: 5m
+        labels: {severity: warning}

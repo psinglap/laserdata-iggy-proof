@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. producerRate is messages/s (1 GB/s / 500 B = 2M/s).
+name: telemetry-1GBps
+topics: 1
+partitionsPerTopic: 64
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 500
+payloadFile: payload/payload-500b.data   # head -c 500 /dev/urandom > payload/payload-500b.data
+subscriptionsPerTopic: 3                 # alerting, ClickHouse sink, S3 archive
+consumerPerSubscription: 16
+producersPerTopic: 16
+producerRate: 2000000                    # steps: 400000, 1000000, 2000000, 4000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

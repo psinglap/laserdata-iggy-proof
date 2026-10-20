@@ -1,0 +1,80 @@
+<div class="tco" id="tco">
+ <div class="tco-in">
+  <label>Write rate <output id="o-w"></output><input id="w" type="range" min="1" max="500" step="1" value="20"><small>MB/s into the cluster, before replication</small></label>
+  <label>Consumers reading everything <output id="o-f"></output><input id="f" type="range" min="1" max="10" step="1" value="2"><small>consumer groups; each reads the full stream</small></label>
+  <label>Retention <output id="o-r"></output><input id="r" type="range" min="0.25" max="30" step="0.25" value="1"><small>days kept on the cluster</small></label>
+  <label>Copies of each message<select id="rf"><option value="1">1 (single node)</option><option value="3" selected>3</option><option value="5">5</option></select><small>replicas, via Viewstamped Replication</small></label>
+  <label>Availability zones<select id="z"><option value="1">1</option><option value="3" selected>3</option></select><small>3 zones adds cross-zone traffic</small></label>
+  <label>Instance type<select id="it"></select><small id="it-d"></small></label>
+  <label>Measured write rate per node<input id="m" type="number" min="0" step="1" placeholder="not measured yet"><small>MB/s one node sustained at your latency target, from the OpenMessaging Benchmark. Leave empty until you have measured it.</small></label>
+  <details><summary>Prices and assumptions</summary>
+   <label>Instance $/hour<input id="ph" type="number" step="0.0001"></label>
+   <label>EBS gp3 $/GB-month<input id="pe" type="number" step="0.001" value="0.08"></label>
+   <label>Cross-zone transfer $/GB<input id="px" type="number" step="0.001" value="0.02"><small>$0.01 out + $0.01 in</small></label>
+   <label>Object storage $/GB-month (reference)<input id="ps" type="number" step="0.001" value="0.023"></label>
+   <label>Disk headroom %<input id="hd" type="number" min="0" max="90" value="30"><small>keep disks at most 70% full</small></label>
+   <label>Client traffic crossing zones %<input id="cz" type="number" min="0" max="100" value="67"><small>2 in 3 clients reach a primary in another zone when spread evenly</small></label>
+   <p class="src">AWS us-east-1, Linux, on-demand list prices, checked 19 October 2026: <a href="https://aws.amazon.com/ec2/pricing/on-demand/">EC2 and data transfer</a>, <a href="https://aws.amazon.com/ebs/pricing/">EBS</a>, <a href="https://aws.amazon.com/s3/pricing/">S3</a>. Replace them with your own discounted prices.</p>
+  </details>
+ </div>
+ <div class="tco-out">
+  <div class="tco-total"><span>Estimated monthly cost</span><b id="t"></b><small id="n"></small></div>
+  <div class="tco-warn" id="warn">Throughput not checked. Node count below comes from storage and replica count only. Run the OpenMessaging Benchmark with the Apache Iggy driver on this instance type and enter the result.</div>
+  <div class="tco-bars" id="bars"></div>
+  <svg id="sweep" viewBox="0 0 520 250" width="100%" role="img" aria-label="Monthly cost as retention grows"></svg>
+  <p class="tco-legend"><span class="k1"></span>Apache Iggy today <span class="k2"></span>Tiered reference</p>
+  <p class="tco-note">The dashed line is a reference, not a feature: it keeps one day on the cluster and the rest in object storage. Apache Iggy has no tiered storage today, so long retention lives on node disks and costs what the solid line shows.</p>
+ </div>
+</div>
+<style>
+.tco{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:22px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px}
+.tco-in{display:grid;gap:12px;align-content:start}.tco label{display:grid;gap:4px;font-size:.86rem;font-weight:600;color:var(--ink)}
+.tco label output{float:right;font:500 .84rem var(--mono);color:var(--lime)}
+.tco small{font-weight:400;color:var(--muted);font-size:.76rem;line-height:1.35}
+.tco input[type=range]{width:100%;accent-color:var(--lime)}
+.tco select,.tco input[type=number]{font:inherit;font-weight:400;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg,transparent);color:var(--ink);width:100%;box-sizing:border-box}
+.tco details{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:10px}.tco summary{cursor:pointer;font-size:.86rem;font-weight:600;color:var(--ink)}
+.tco details label{margin-top:10px}.tco .src{font-size:.74rem;color:var(--muted);line-height:1.4}
+.tco-out{display:grid;gap:12px;align-content:start;min-width:0}
+.tco-total{display:grid;gap:2px}.tco-total span{font:500 .66rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tco-total b{font:400 2.2rem/1.1 var(--serif);color:var(--ink)}
+.tco-warn{font-size:.8rem;line-height:1.4;background:var(--rose-soft,#fbe9ea);color:var(--ink);border-left:3px solid var(--rose,#c0392b);padding:8px 10px;border-radius:6px}
+.tco-bars{display:grid;gap:6px}.tco-bar{display:grid;grid-template-columns:110px minmax(0,1fr) 84px;gap:8px;align-items:center;font-size:.8rem}
+.tco-bar i{display:block;height:12px;border-radius:4px;background:var(--lime-fill)}.tco-bar b{font:500 .78rem var(--mono);text-align:right}
+.tco-legend{margin:0;font-size:.78rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.tco-legend span{display:inline-block;width:18px;height:0;border-top:3px solid var(--lime)}.tco-legend .k2{border-top:2px dashed var(--muted);margin-left:10px}
+.tco-note{font-size:.78rem;color:var(--muted);line-height:1.45;margin:0}
+@media (max-width:760px){.tco{grid-template-columns:1fr;padding:16px}.tco-bar{grid-template-columns:90px minmax(0,1fr) 76px}}
+</style>
+<script>
+(function(){
+ var T=window.IggyTCO,$=function(id){return document.getElementById(id)};
+ T.INSTANCES.forEach(function(x){var o=document.createElement('option');o.value=x.id;o.textContent=x.id;if(x.id==='i4i.2xlarge')o.selected=true;$('it').appendChild(o)});
+ var money=function(v){return '$'+Math.round(v).toLocaleString('en-US')};
+ function inst(){var x=T.INSTANCES.find(function(i){return i.id===$('it').value});return x}
+ function syncInst(){var x=inst();$('ph').value=x.hourly;$('it-d').textContent=x.vcpu+' vCPU · '+x.ramGiB+' GiB RAM · '+(x.nvmeGB?x.nvmeGB.toLocaleString('en-US')+' GB local NVMe':'EBS only (gp3 storage added)')}
+ function inputs(days){var x=Object.assign({},inst(),{hourly:+$('ph').value});return{writeMBps:+$('w').value,fanout:+$('f').value,retentionDays:days==null?+$('r').value:days,replicas:+$('rf').value,zones:+$('z').value,instance:x,headroomPct:+$('hd').value,crossZoneClientPct:+$('cz').value,measuredMBpsPerNode:+$('m').value||null,prices:{ebsGp3PerGBMonth:+$('pe').value,crossAzPerGB:+$('px').value,s3PerGBMonth:+$('ps').value}}}
+ function draw(){
+  $('o-w').textContent=$('w').value+' MB/s';$('o-f').textContent=$('f').value;$('o-r').textContent=(+$('r').value)+' d';
+  var r=T.estimate(inputs());
+  $('t').textContent=money(r.total);
+  var why={replicas:'the replica count',storage:'disk space for retention',throughput:'your measured throughput'}[r.binding];
+  $('n').textContent=r.nodes+' × '+inst().id+', set by '+why+' · '+Math.round(r.storedGB).toLocaleString('en-US')+' GB stored';
+  $('warn').hidden=r.throughputChecked;
+  var max=Math.max(r.compute,r.storage,r.network,1);
+  $('bars').innerHTML=[['Compute',r.compute],['Storage (EBS)',r.storage],['Cross-zone',r.network]].map(function(b){return '<div class="tco-bar"><span>'+b[0]+'</span><i style="width:'+Math.max(1,b[1]/max*100)+'%"></i><b>'+money(b[1])+'</b></div>'}).join('');
+  var days=[],solid=[],dash=[];for(var d=1;d<=30;d++){days.push(d);solid.push(T.estimate(inputs(d)).total);var one=T.estimate(inputs(1));dash.push(one.total+one.objectStoreRef*(d-1))}
+  var L=62,R=505,Tp=22,B=208,ymax=Math.max.apply(null,solid.concat(dash))*1.08;
+  var X=function(d){return L+(d-1)/29*(R-L)},Y=function(v){return B-v/ymax*(B-Tp)};
+  var s='';for(var k=0;k<=4;k++){var v=ymax*k/4;s+='<line x1="'+L+'" x2="'+R+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)"/><text x="'+(L-8)+'" y="'+(Y(v)+4)+'" text-anchor="end" class="svg-s">'+(v>=1000?'$'+Math.round(v/1000)+'k':'$'+Math.round(v))+'</text>'}
+  [1,7,14,21,30].forEach(function(d){s+='<text x="'+X(d)+'" y="'+(B+16)+'" text-anchor="middle" class="svg-s">'+d+' d</text>'});
+  var pl=function(a){return a.map(function(v,i){return X(days[i])+','+Y(v)}).join(' ')};
+  s+='<polyline points="'+pl(dash)+'" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/><polyline points="'+pl(solid)+'" fill="none" stroke="var(--lime)" stroke-width="2.5"/>';
+  var cur=+$('r').value;if(cur>=1){s+='<circle cx="'+X(cur)+'" cy="'+Y(T.estimate(inputs()).total)+'" r="5" fill="var(--lime)"/>'}
+  s+='<text x="'+L+'" y="12" class="svg-s">MONTHLY COST BY RETENTION</text><text x="'+((L+R)/2)+'" y="'+(B+36)+'" text-anchor="middle" class="svg-s">RETENTION</text>';
+  $('sweep').innerHTML=s;
+ }
+ $('it').addEventListener('change',function(){syncInst();draw()});
+ document.querySelectorAll('#tco input,#tco select').forEach(function(e){e.addEventListener('input',draw)});
+ syncInst();draw();
+})();
+</script>

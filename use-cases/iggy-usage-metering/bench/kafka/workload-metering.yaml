@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. Run once per producerRate step and driver.
+name: metering-1M
+topics: 1
+partitionsPerTopic: 32
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 200
+payloadFile: payload/payload-200b.data   # head -c 200 /dev/urandom > payload/payload-200b.data
+subscriptionsPerTopic: 3                 # meter, quota enforcement, analytics
+consumerPerSubscription: 8
+producersPerTopic: 8
+producerRate: 1000000                    # steps: 100000, 500000, 1000000, 2000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

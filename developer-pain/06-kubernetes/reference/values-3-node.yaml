@@ -1,0 +1,71 @@
+# LaserData reference values for a three-node Apache Iggy 0.9 cluster.
+# Based on helm/charts/iggy/examples/cluster-3-node.yaml from apache/iggy
+# (chart 0.6.0). Install one release per node; only selfReplicaId and the
+# nodeSelector differ between releases (see install.sh).
+
+ui:
+  enabled: false
+
+server:
+  hostNetwork: true            # required: the replica listener binds the roster ip
+  image:
+    tag: "0.9.0"               # pin a release; the chart default follows edge builds
+    pullPolicy: IfNotPresent
+
+  users:
+    root:
+      createSecret: false
+      existingSecret:
+        name: iggy-cluster-secrets
+
+  persistence:
+    enabled: true
+    storageClass: local-path   # must be node-local: a release is pinned to one node
+    size: 100Gi
+
+  encryption:
+    enabled: true
+    configVersion: flat        # 0.9.0 reads [encryption]; "auto" only knows edge tags
+    existingSecret:
+      name: iggy-cluster-secrets
+
+  jwt:
+    existingSecret:
+      name: iggy-cluster-secrets
+
+  cluster:
+    enabled: true
+    name: iggy-cluster         # hashed into on-disk state; never change after first boot
+    auth:
+      enabled: true
+      existingSecret:
+        name: iggy-cluster-secrets
+    nodes:                     # literal node IPs; identical on every release
+      - name: iggy-node-0
+        ip: 10.0.1.10
+        replicaId: 0
+        ports: {tcpReplica: 9090}
+      - name: iggy-node-1
+        ip: 10.0.1.11
+        replicaId: 1
+        ports: {tcpReplica: 9090}
+      - name: iggy-node-2
+        ip: 10.0.1.12
+        replicaId: 2
+        ports: {tcpReplica: 9090}
+
+  env:
+    - name: RUST_LOG
+      value: info
+    - name: IGGY_HTTP_ADDRESS
+      value: "0.0.0.0:3000"
+    - name: IGGY_TCP_ADDRESS
+      value: "0.0.0.0:8090"
+    - name: IGGY_QUIC_ADDRESS
+      value: "0.0.0.0:8080"
+    - name: IGGY_WEBSOCKET_ADDRESS
+      value: "0.0.0.0:8092"
+
+resources:
+  requests: {cpu: "4", memory: 8Gi}
+  limits: {memory: 8Gi}

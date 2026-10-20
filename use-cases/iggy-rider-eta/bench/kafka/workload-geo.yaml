@@ -1,0 +1,14 @@
+# OpenMessaging Benchmark: same shape as run-iggy.sh. Run once per producerRate step.
+name: geo-1M
+topics: 1
+partitionsPerTopic: 32
+keyDistributor: KEY_ROUND_ROBIN
+messageSize: 120
+payloadFile: payload/payload-120b.data   # head -c 120 /dev/urandom > payload/payload-120b.data
+subscriptionsPerTopic: 4                 # dispatch, ETA, maps, geofences
+consumerPerSubscription: 4
+producersPerTopic: 8
+producerRate: 1000000                    # steps: 40000, 200000, 500000, 1000000
+consumerBacklogSizeGB: 0
+testDurationMinutes: 30
+warmupDurationMinutes: 5

@@ -1,0 +1,17 @@
+services:
+  iggy:
+    image: apache/iggy:0.9.0
+    container_name: iggy
+    cap_add: [SYS_NICE]
+    security_opt: [seccomp:unconfined]
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    environment:
+      - IGGY_NODE_ADVERTISED_ADDRESS=localhost
+    ports: ["8090:8090", "3000:3000"]
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_SKIP_USER_SETUP=1
+    ports: ["8123:8123"]
