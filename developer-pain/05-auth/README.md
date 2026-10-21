@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 05: TLS / SASL / auth setup**  
-> Blog: [How Apache Iggy secures a stream: TLS, scoped users and tokens, in five minutes](https://claude.ai/artifact/6U58MVy4i1ozNW4xZmcRpL) · Doc: [Secure Apache Iggy in 5 minutes](https://claude.ai/artifact/REMoG5hfUcyW9SM1uGCr6P) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#auth)  
+> Blog: [How Apache Iggy secures a stream: TLS, scoped users and tokens, in five minutes](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.auth-blog) · Doc: [Secure Apache Iggy in 5 minutes](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.auth-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~auth)  
 > Where this code goes: LaserData repo: a starter project to copy.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

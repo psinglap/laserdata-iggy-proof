@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 11: Exactly-once / transactions**  
-> Blog: [Effectively-once processing with Apache Iggy: what the broker guarantees, and the twenty lines you add](https://claude.ai/artifact/AWTyiQyE39wfmukJRK9jqH) · Doc: [Delivery guarantees in Apache Iggy](https://claude.ai/artifact/Ve5w5gKoPr81vzNSt2F9xJ) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#eos)  
+> Blog: [Effectively-once processing with Apache Iggy: what the broker guarantees, and the twenty lines you add](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.eos-blog) · Doc: [Delivery guarantees in Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.eos-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~eos)  
 > Where this code goes: LaserData repo: an example with a crash test.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 07: Consumer-group rebalancing & stalls**  
-> Blog: [How Apache Iggy moves partitions between consumers without stopping the group](https://claude.ai/artifact/7pcPmhKyZC9Y1EBWqxa2ar) · Doc: [How consumer groups work in Apache Iggy](https://claude.ai/artifact/Stm1Vo6iaRreBA8LrrBjCh) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#rebalance)  
+> Blog: [How Apache Iggy moves partitions between consumers without stopping the group](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.rebalance-blog) · Doc: [How consumer groups work in Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.rebalance-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~rebalance)  
 > Where this code goes: LaserData repo: a consumer-group churn test kit.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

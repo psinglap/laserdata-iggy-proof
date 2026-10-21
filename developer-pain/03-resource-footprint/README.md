@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 03: Memory / CPU / JVM / GC**  
-> Blog: [Running Apache Iggy small: one binary on one or two cores, at the edge, as a sidecar or on small nodes](https://claude.ai/artifact/NTugtAhsMsQAnXFCLforrB) · Doc: [Size an Apache Iggy deployment](https://claude.ai/artifact/16tgJNuUiuN6CtMt5yKiLq) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#resource)  
+> Blog: [Running Apache Iggy small: one binary on one or two cores, at the edge, as a sidecar or on small nodes](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size an Apache Iggy deployment](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
 > Where this code goes: LaserData repo: a measurement kit anyone can run.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

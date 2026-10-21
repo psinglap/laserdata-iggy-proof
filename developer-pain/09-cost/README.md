@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 09: Cross-AZ & storage cost**  
-> Blog: [What it costs to run Apache Iggy on AWS, with every assumption showing](https://claude.ai/artifact/QMTD8Rh8NbJP26i5hLiwSd) · Doc: [Estimate the cost of running Apache Iggy](https://claude.ai/artifact/XMsi1aDRuodoKCaLuDVutV) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#cost)  
+> Blog: [What it costs to run Apache Iggy on AWS, with every assumption showing](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.cost-blog) · Doc: [Estimate the cost of running Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.cost-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~cost)  
 > Where this code goes: LaserData repo: an open-source calculator.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

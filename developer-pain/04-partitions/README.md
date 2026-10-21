@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 04: Partition limits & hot partitions**  
-> Blog: [How partitions work in Apache Iggy, and how many you actually need](https://claude.ai/artifact/Mp6DiKAoiMLTroUWh8VDuV) · Doc: [Plan streams, topics and partitions in Apache Iggy](https://claude.ai/artifact/XnKggTfVSJN8v1krnFPqRH) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#partitions)  
+> Blog: [How partitions work in Apache Iggy, and how many you actually need](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.partitions-blog) · Doc: [Plan streams, topics and partitions in Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.partitions-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~partitions)  
 > Where this code goes: LaserData repo: a scale-test kit anyone can run.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 06: Kubernetes ops & upgrades**  
-> Blog: [Running a three-node Apache Iggy cluster on Kubernetes, and upgrading it without losing a message](https://claude.ai/artifact/RocbaVUwhtePPzsvfFCDQ5) · Doc: [Run Apache Iggy on Kubernetes](https://claude.ai/artifact/WrAtXuKKn8mXYnyJsaYdrM) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#k8s)  
+> Blog: [Running a three-node Apache Iggy cluster on Kubernetes, and upgrading it without losing a message](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.k8s-blog) · Doc: [Run Apache Iggy on Kubernetes](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.k8s-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~k8s)  
 > Where this code goes: upstream/: pull request to apache/iggy to publish the Helm chart on Artifact Hub. reference/: LaserData three-node reference.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

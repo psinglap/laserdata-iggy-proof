@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 08: Lag & observability**  
-> Blog: [Is your consumer keeping up? Consumer lag for Apache Iggy, in Prometheus and Grafana](https://claude.ai/artifact/W8pKGcPYFD3kVxe9jBR9Kz) · Doc: [Monitor consumer lag in Apache Iggy](https://claude.ai/artifact/MrTWgMAbMGTCKoh3hi9GPh) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#lag)  
+> Blog: [Is your consumer keeping up? Consumer lag for Apache Iggy, in Prometheus and Grafana](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.lag-blog) · Doc: [Monitor consumer lag in Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.lag-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~lag)  
 > Where this code goes: LaserData repo: exporter and Grafana dashboard. The metric proposal goes to apache/iggy as an issue or pull request.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

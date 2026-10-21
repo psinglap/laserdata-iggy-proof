@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 10: Client library maintenance & SDK parity**  
-> Blog: [Building a Node.js service on Apache Iggy](https://claude.ai/artifact/7sZ5GGszNS2LgNoDHmUxx6) · Doc: [Apache Iggy SDKs: pick one and connect in 5 minutes](https://claude.ai/artifact/X6Cct1aEmpUBXkfPH9EEPt) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#sdk)  
+> Blog: [Building a Node.js service on Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.sdk-blog) · Doc: [Apache Iggy SDKs: pick one and connect in 5 minutes](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.sdk-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~sdk)  
 > Where this code goes: LaserData repo: a Node.js quickstart.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 

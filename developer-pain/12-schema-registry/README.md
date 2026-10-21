@@ -1,5 +1,5 @@
 > **LaserData proof · Developer pain 12: Schema registry & serialization**  
-> Blog: [Versioned event schemas on Apache Iggy, with the schema id in a header](https://claude.ai/artifact/DdkNgaGmUruHPKYqyDt3UF) · Doc: [Use a schema registry with Apache Iggy](https://claude.ai/artifact/CP2VuYPXKnKzmD2H7Tr4y5) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/VHZp6Z8yooKaSaCES2bPnG#schema)  
+> Blog: [Versioned event schemas on Apache Iggy, with the schema id in a header](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.schema-blog) · Doc: [Use a schema registry with Apache Iggy](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.schema-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~schema)  
 > Where this code goes: LaserData repo: Apache Iggy with Apicurio Registry.  
 > Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
 
