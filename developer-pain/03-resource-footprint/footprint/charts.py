@@ -145,7 +145,7 @@ def restart_chart(root: Path, s: dict, out: Path) -> None:
     ax2.set_ylabel("% of one core")
     h1, l1 = ax.get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
-    ax.legend(h1 + h2, l1 + l2, frameon=False, loc="lower right")
+    ax.legend(h1 + h2, l1 + l2, frameon=True, framealpha=.9, edgecolor=LINE, loc="center right")
     heading(fig, "Server memory and CPU through a graceful restart and a crash",
             "4 GiB on disk, a Laser SDK producer and consumer connected throughout (repetition 1)")
     footer(fig, s["env"], " · repetition 1")
