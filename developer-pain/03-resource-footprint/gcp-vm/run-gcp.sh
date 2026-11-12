@@ -3,14 +3,14 @@
 # Laser Stack and one client VM running the Laser SDK tests against it over the zone's internal
 # network. All tests run at once. Evidence comes back to results/<profile>/, then every VM is deleted.
 #
-#   ./run-gcp.sh                                   all five tests, one repetition
+#   PROJECT=my-project ./run-gcp.sh                all five tests, one repetition
 #   TESTS="restart" ./run-gcp.sh                   one test
 #   PROJECT=my-project ZONE=us-central1-a ./run-gcp.sh
 #
 # Needs: gcloud signed in to a project where you can create VMs.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
-PROJECT=${PROJECT:-gtm-tools-513915}; ZONE=${ZONE:-asia-south1-a}
+PROJECT=${PROJECT:?set PROJECT to your Google Cloud project id}; ZONE=${ZONE:-asia-south1-a}
 MACHINE=${MACHINE:-n2-standard-4}       # 4 dedicated vCPU, 16 GB, for each VM
 PROFILE=${PROFILE:-sized-2g}; SCALE=${FOOTPRINT_SCALE:-1}; REP=${REP:-1}
 TESTS=${TESTS:-backlog-2 backlog-10 backlog-50 producer restart}

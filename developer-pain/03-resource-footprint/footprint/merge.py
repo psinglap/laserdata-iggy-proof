@@ -47,9 +47,7 @@ for rep, parts in groups.items():
                         shutil.copy(f, out / "env.json")
                 else:
                     shutil.copy(f, out / f.name)
-            log = part / "server.log"
-            if log.exists():
-                (out / f"server-tail-{test}.log").write_text("".join(log.read_text().splitlines(keepends=True)[-300:]))
+            # Server logs stay in the run's artifacts; they are not copied into the published results.
     (out / "status.json").write_text(json.dumps(status, indent=2))
     (out / "server-state.json").write_text(json.dumps(states, indent=2))
     print(rep, "←", ", ".join(p.name for p in parts), "|", status)

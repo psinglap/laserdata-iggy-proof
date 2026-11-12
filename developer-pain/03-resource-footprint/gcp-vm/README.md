@@ -13,8 +13,8 @@ deleted.
 
 ```bash
 cd developer-pain/03-resource-footprint/gcp-vm
-./run-gcp.sh                                   # all five tests, one repetition
-FOOTPRINT_SCALE=0.1 ./run-gcp.sh               # quick trial
+PROJECT=my-project ./run-gcp.sh                # all five tests, one repetition
+PROJECT=my-project FOOTPRINT_SCALE=0.1 ./run-gcp.sh   # quick trial
 PROJECT=my-project ZONE=us-central1-a ./run-gcp.sh
 python ../footprint/merge.py results/sized-2g/incoming results/sized-2g
 python ../footprint/summarize.py results/sized-2g && python ../footprint/charts.py results/sized-2g

@@ -37,4 +37,12 @@ Steady before restart: server RSS 119 (117–125), CPU 9.9% (10–14).
 
 Confirmed records missing after both restarts: 0 (0–100).
 
-Raw evidence for every repetition is in `rep-*/`: `samples.csv` (one row per second per process), `events.jsonl`, one JSON per test, `env.json` and the tail of the server log.
+## Charts
+
+![Consumer memory while catching up on 7 million records](charts/consumer-backlog.png)
+
+![Producer memory over 30 minutes, server frozen for 60 s](charts/producer-pause.png)
+
+![Server memory and CPU through a graceful restart and a crash](charts/restart.png)
+
+Raw evidence for every repetition is in `rep-*/`: `samples.csv` (one row per second per process), `events.jsonl`, one JSON per test and `env.json`. SVG versions of the charts are in `charts/`.

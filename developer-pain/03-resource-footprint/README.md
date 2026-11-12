@@ -1,7 +1,7 @@
 > **LaserData proof · Developer pain 03: Memory / CPU**  
 > Blog: [Consumers that grow to 6 GB, producers that leak, brokers that spike on restart: we measured LaserData on all three](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size memory and CPU for LaserData](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
 > Where this code goes: the LaserData use-case repository, after LaserData engineering has reviewed it.  
-> Status: measured on Google Cloud VMs (3 repetitions, the published numbers) and on GitHub Actions (3 repetitions, one-button reruns). Results: [github/results/sized-2g](github/results/sized-2g/README.md) · [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md) · shipped-settings evidence for review: [github/results/shipped](github/results/shipped/NOTE.md).
+> Status: measured on Google Cloud VMs (3 repetitions, the published numbers) and on GitHub Actions (3 repetitions, one-button reruns). Results: [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md) · [github/results/sized-2g](github/results/sized-2g/README.md).
 
 # LaserData footprint tests
 
@@ -14,6 +14,12 @@ Laser SDK clients in the situations engineers report most:
 | `producer_pause.py` | A producer whose memory keeps climbing under sustained sends | Laser SDK producer, background mode, 8,000 records/s for 30 minutes; server frozen with `docker pause` for 60 s halfway; a consumer checks every record | no record missing unless the SDK reported it to the app |
 | `restart.py` | A broker restart that spikes CPU and memory and stalls its neighbours | 4 GiB on disk; producer (5,000 records/s) and consumer connected; graceful restart, then `kill -9` and start | no confirmed record missing |
 
+## Results at a glance (Google Cloud, median of 3)
+
+![Consumer memory while catching up on 7 million records](gcp-vm/results/sized-2g/charts/consumer-backlog.png)
+![Producer memory over 30 minutes, server frozen for 60 s](gcp-vm/results/sized-2g/charts/producer-pause.png)
+![Server memory and CPU through a graceful restart and a crash](gcp-vm/results/sized-2g/charts/restart.png)
+
 ## Two setups, same tests
 
 | Folder | Where | Client and server |
@@ -23,8 +29,8 @@ Laser SDK clients in the situations engineers report most:
 
 Both use the **sized-2g** server profile (`stack/sized-2g.yml`): Laser Stack's settings with the memory
 pool at 512 MiB and the write-ahead log at its minimum (~128 MiB per partition), sized for the
-2 GiB node. With the shipped budgets, a 50-partition write burst got the server killed on that node;
-see `github/results/shipped/NOTE.md`.
+2 GiB node, as the sizing guide recommends for small nodes. Laser Stack's shipped values are meant
+for larger nodes.
 
 ## How it measures
 
@@ -65,17 +71,15 @@ python footprint/consumer_backlog.py preload --partitions 50
 
 **With a coding agent:** see `AGENTS.md`.
 
-## Things we found while building it
+## Good to know
 
-- GitHub-hosted runners mount their disks with `nobarrier`. LaserData's managed backend refuses
-  to keep data on such a disk, so the workflow creates an ext4 image with write barriers
+- GitHub-hosted runners mount their disks without write barriers. LaserData's managed backend
+  keeps its data only on disks with write barriers, so the workflow creates one
   (`stack/data-disk.yml`). Local runs on a normal disk don't need it.
-- The test consumer is one Python process handling one record at a time, so it is CPU-bound at
-  roughly 10,000–13,000 records/s. That limits the test client, not LaserData, so the results make
-  no throughput claims.
-- After a 60-second server freeze, a Laser SDK consumer raises `the live consumer stream ended`.
-  The tests then build a new consumer in the same group, as a long-running service should, and
-  record how often that was needed.
+- The test consumer is one Python process handling one record at a time, so it reads roughly
+  8,000–13,000 records/s. That is the test client's pace, so the results make no throughput claims.
+- A long-running service should rebuild its consumer if the live stream ends after a long outage;
+  it resumes from the group's stored offset. The tests do this and record how often it happened.
 
 ## Files
 

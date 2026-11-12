@@ -210,8 +210,12 @@ def readme(s: dict) -> str:
         lines.append(f"| {kind} | {fmt(r['seconds_to_ready'])} | {fmt(r['seconds_until_producer_write'])} | {fmt(r['seconds_until_consumer_record'])} | "
                      f"{fmt(r['server_rss_peak_60s_mib'])} | {fmt(r['server_container_peak_60s_mib'])} | {fmt(r['server_cpu_peak_60s_pct'], '%')} |")
     lines += ["", f"Confirmed records missing after both restarts: {fmt(rs['missing_confirmed'])}.", "",
+              "## Charts", "",
+              "![Consumer memory while catching up on 7 million records](charts/consumer-backlog.png)", "",
+              "![Producer memory over 30 minutes, server frozen for 60 s](charts/producer-pause.png)", "",
+              "![Server memory and CPU through a graceful restart and a crash](charts/restart.png)", "",
               "Raw evidence for every repetition is in `rep-*/`: `samples.csv` (one row per second per process), "
-              "`events.jsonl`, one JSON per test, `env.json` and the tail of the server log.", ""]
+              "`events.jsonl`, one JSON per test and `env.json`. SVG versions of the charts are in `charts/`.", ""]
     return "\n".join(lines)
 
 
