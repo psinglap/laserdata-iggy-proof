@@ -1,7 +1,7 @@
 > **LaserData proof · Developer pain 03: Memory / CPU**  
 > Blog: [Consumers that grow to 6 GB, producers that leak, brokers that spike on restart: we measured LaserData on all three](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size memory and CPU for LaserData](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
 > Where this code goes: the LaserData use-case repository, after LaserData engineering has reviewed it.  
-> Status: runs on GitHub Actions; the latest measured results are in [results/](results/README.md).
+> Status: measured on GitHub Actions (3 repetitions) and on Google Cloud VMs (1 repetition). Results: [github/results/sized-2g](github/results/sized-2g/README.md) · [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md) · shipped-settings evidence for review: [github/results/shipped](github/results/shipped/NOTE.md).
 
 # LaserData footprint tests
 
@@ -13,6 +13,18 @@ Laser SDK clients in the situations engineers report most:
 | `consumer_backlog.py` | A consumer that grows from 800 MB to 6 GB when partitions and lag go up | 7 million records (1 KiB) preloaded at 2, 10 and 50 partitions; one Laser SDK consumer reads them all from offset 0 | every record read once |
 | `producer_pause.py` | A producer whose memory keeps climbing under sustained sends | Laser SDK producer, background mode, 8,000 records/s for 30 minutes; server frozen with `docker pause` for 60 s halfway; a consumer checks every record | no record missing unless the SDK reported it to the app |
 | `restart.py` | A broker restart that spikes CPU and memory and stalls its neighbours | 4 GiB on disk; producer (5,000 records/s) and consumer connected; graceful restart, then `kill -9` and start | no confirmed record missing |
+
+## Two setups, same tests
+
+| Folder | Where | Client and server |
+|---|---|---|
+| [`github/`](github/README.md) | GitHub-hosted machines, one per test, all at once | Same machine, separate cores |
+| [`gcp-vm/`](gcp-vm/README.md) | Google Cloud VMs (`n2-standard-4`), one pair per test | Separate VMs in one zone, like an app and its streaming server |
+
+Both use the **sized-2g** server profile (`stack/sized-2g.yml`): Laser Stack's settings with the memory
+pool at 512 MiB and the write-ahead log at its minimum (~128 MiB per partition), sized for the
+2 GiB node. With the shipped budgets, a 50-partition write burst got the server killed on that node;
+see `github/results/shipped/NOTE.md`.
 
 ## How it measures
 
