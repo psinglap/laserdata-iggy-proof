@@ -6,9 +6,8 @@ stops answering, and a server restart. Read `README.md` first.
 
 ## Run it for the user
 
-- **No Linux machine with Docker?** Fork the repository, open the **Actions** tab, choose
-  **LaserData footprint**, then **Run workflow**. Use `scale = 0.1` for an 8-minute trial and
-  `scale = 1` for the full hour. Results are committed to `results/`.
+- **On Google Cloud:** `PROJECT=<their project> gcp-vm/run-gcp.sh` (needs `gcloud` signed in);
+  `FOOTPRINT_SCALE=0.1` for a quick trial. It deletes every VM it creates.
 - **Linux with Docker:** `pip install -r requirements.txt && ./run.sh`
   (`FOOTPRINT_SCALE=0.1 ./run.sh` for the quick trial). The sampler reads `/proc` and cgroup v2,
   so it does not run on macOS or Windows; use the GitHub route there.

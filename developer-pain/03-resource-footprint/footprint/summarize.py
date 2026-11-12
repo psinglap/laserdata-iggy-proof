@@ -167,8 +167,8 @@ def readme(s: dict) -> str:
     env, a = s["env"], s["combined"]
     lines = [
         "# Footprint results", "",
-        f"Measured {env.get('started', '')[:10]} by [{s.get('run_label') or 'this GitHub Actions run'}]({s.get('run_url', '')}), "
-        f"{s['repetitions']} repetition{'s' if s['repetitions'] != 1 else ''}, each on {s.get('where') or 'a fresh GitHub-hosted machine'} "
+        f"Measured {env.get('started', '')[:10]} by [{s.get('run_label') or 'this run'}]({s.get('run_url', '')}), "
+        f"{s['repetitions']} repetition{'s' if s['repetitions'] != 1 else ''}, each on {s.get('where') or 'a fresh machine'} "
         f"({env.get('host_cores')} vCPU {env.get('host_cpu')}, {env.get('host_memory_mib', 0) // 1024} GiB, kernel {env.get('kernel')}).",
         "",
         f"Server: Laser Streams `{env.get('server_version') or 'see digest'}` "

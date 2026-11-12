@@ -1,7 +1,7 @@
 > **LaserData proof · Developer pain 03: Memory / CPU**  
 > Blog: [Consumers that grow to 6 GB, producers that leak, brokers that spike on restart: we measured LaserData on all three](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size memory and CPU for LaserData](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
 > Where this code goes: the LaserData use-case repository, after LaserData engineering has reviewed it.  
-> Status: measured on Google Cloud VMs (3 repetitions, the published numbers) and on GitHub Actions (3 repetitions, one-button reruns). Results: [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md) · [github/results/sized-2g](github/results/sized-2g/README.md).
+> Status: measured self-hosted on Google Cloud VMs (3 repetitions). Results: [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md). A LaserData Cloud (managed) run is next.
 
 # LaserData footprint tests
 
@@ -20,12 +20,12 @@ Laser SDK clients in the situations engineers report most:
 ![Producer memory over 30 minutes, server frozen for 60 s](gcp-vm/results/sized-2g/charts/producer-pause.png)
 ![Server memory and CPU through a graceful restart and a crash](gcp-vm/results/sized-2g/charts/restart.png)
 
-## Two setups, same tests
+## Where it runs
 
 | Folder | Where | Client and server |
 |---|---|---|
-| [`github/`](github/README.md) | GitHub-hosted machines, one per test, all at once | Same machine, separate cores |
-| [`gcp-vm/`](gcp-vm/README.md) | Google Cloud VMs (`n2-standard-4`), one pair per test | Separate VMs in one zone, like an app and its streaming server |
+| [`gcp-vm/`](gcp-vm/README.md) | Self-hosted on Google Cloud VMs (`n2-standard-4`), one pair per test, all at once | Separate VMs in one zone, like an app and its streaming server |
+| `run.sh` | Any Linux machine with Docker | Same machine, separate cores |
 
 Both use the **sized-2g** server profile (`stack/sized-2g.yml`): Laser Stack's settings with the memory
 pool at 512 MiB and the write-ahead log at its minimum (~128 MiB per partition), sized for the
@@ -46,9 +46,9 @@ for larger nodes.
 
 ## Run it
 
-**On GitHub, no Linux machine needed.** Fork this repository, open **Actions**, choose
-**LaserData footprint**, then **Run workflow**. `scale = 0.1` is an 8-minute trial that publishes
-nothing; `scale = 1` runs the full hour three times on fresh machines and commits `results/`.
+**On Google Cloud, one command from your laptop:** `PROJECT=my-project gcp-vm/run-gcp.sh`
+creates a server VM and a client VM per test, runs everything at once, brings the results back and
+deletes the VMs. See [`gcp-vm/`](gcp-vm/README.md).
 
 **On Linux with Docker:**
 
@@ -91,6 +91,6 @@ python footprint/consumer_backlog.py preload --partitions 50
 | `footprint/sampler.py` | Per-second memory and CPU from the kernel |
 | `footprint/consumer_backlog.py`, `producer_pause.py`, `restart.py` | The three tests |
 | `footprint/summarize.py`, `charts.py` | Build `results/README.md`, `summary.json` and the charts |
-| `../../.github/workflows/footprint.yml` | The GitHub workflow |
+| `gcp-vm/` | The Google Cloud setup: create VMs, run, collect, delete |
 
 Built by the LaserData team.
