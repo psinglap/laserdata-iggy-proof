@@ -12,10 +12,11 @@ stops answering, and a server restart. Read `README.md` first.
 - **Linux with Docker:** `pip install -r requirements.txt && ./run.sh`
   (`FOOTPRINT_SCALE=0.1 ./run.sh` for the quick trial). The sampler reads `/proc` and cgroup v2,
   so it does not run on macOS or Windows; use the GitHub route there.
-- **Against the user's own LaserData deployment:** export `LASER_CONNECTION_STRING` and run one
-  test script directly, for example `python footprint/consumer_backlog.py preload --partitions 10`
-  then `consume`. Client memory is still measured; server memory comes from the LaserData Console
-  or the metrics API instead of the local sampler.
+- **Against the user's own LaserData deployment:** export `LASER_CONNECTION_STRING`, set
+  `FOOTPRINT_SCALE=0.01` on a Free Tier deployment (capped at 200 KB/s), run
+  `python footprint/consumer_backlog.py preload --partitions 50`, then wrap the consume step in
+  `/usr/bin/time -v` (Linux) or `/usr/bin/time -l` (macOS) to get the client's peak memory.
+  Server memory comes from the LaserData Console or metrics API, not from this folder's sampler.
 
 ## Rules
 

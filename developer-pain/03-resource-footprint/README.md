@@ -53,9 +53,15 @@ FOOTPRINT_SCALE=0.1 ./run.sh      # 8-minute trial
 python footprint/summarize.py results   # if you put several runs in results/rep-*/
 ```
 
-**Against your own LaserData deployment:** set `LASER_CONNECTION_STRING` and run one test
-directly, for example `python footprint/consumer_backlog.py preload --partitions 50`, then
-`consume`. Client memory is still sampled locally; read server memory from the LaserData Console.
+**Against your own LaserData deployment:** set `LASER_CONNECTION_STRING` and run the backlog test
+directly, wrapping the consume step to get the client's peak memory. A Free Tier deployment is
+capped at 200 KB/s, so use `FOOTPRINT_SCALE=0.01` there; full size needs a paid tier.
+
+```bash
+export LASER_CONNECTION_STRING='user:password@your-deployment:8090' FOOTPRINT_SCALE=0.01
+python footprint/consumer_backlog.py preload --partitions 50
+/usr/bin/time -v python footprint/consumer_backlog.py consume --partitions 50   # macOS: -l
+```
 
 **With a coding agent:** see `AGENTS.md`.
 
