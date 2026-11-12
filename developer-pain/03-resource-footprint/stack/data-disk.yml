@@ -1,0 +1,11 @@
+# Used only when FOOTPRINT_DATA_DIR is set (the GitHub workflow sets it).
+# GitHub-hosted runners mount their disks with `nobarrier`, which skips write-safety flushes.
+# LaserData's managed backend refuses to keep data on such a disk, so the workflow creates an
+# ext4 disk image with normal write barriers and both services keep their data there.
+volumes:
+  iggy-data:
+    driver: local
+    driver_opts: {type: none, o: bind, device: "${FOOTPRINT_DATA_DIR}/iggy"}
+  plane-data:
+    driver: local
+    driver_opts: {type: none, o: bind, device: "${FOOTPRINT_DATA_DIR}/plane"}

@@ -24,6 +24,10 @@ git -C "$STACK" fetch -q origin "$STACK_SHA" 2>/dev/null; git -C "$STACK" checko
 # Laser Stack's own start script, so the server and managed backend come up exactly as
 # LaserData ships them; it waits until both report healthy. Our only addition is limits.yml.
 export COMPOSE_FILE="$STACK/compose.yaml:$HERE/stack/limits.yml"
+if [ -n "${FOOTPRINT_DATA_DIR:-}" ]; then
+  mkdir -p "$FOOTPRINT_DATA_DIR/iggy" "$FOOTPRINT_DATA_DIR/plane"
+  COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/data-disk.yml"
+fi
 compose() { docker compose --project-directory "$STACK" --env-file "$STACK/.env" "$@"; }
 CI=true "$STACK/scripts/up" || { compose logs --no-color --tail 200; exit 1; }
 until curl -fs http://127.0.0.1:3000/ping >/dev/null; do sleep 1; done
