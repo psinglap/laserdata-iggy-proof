@@ -1,0 +1,11 @@
+# Server profile "sized-2g": LaserData's shipped settings, with the two memory budgets
+# shrunk to fit a 2 GiB node, as LaserData's sizing guidance recommends for small nodes.
+#
+# Why: with the shipped budgets (memory pool 4 GiB, write-ahead log 268 MB per partition),
+# a burst of writes into 50 partitions grew the server past a 2 GiB limit, the kernel killed
+# it, and records it had already confirmed were discarded on restart. See results/shipped/.
+services:
+  iggy:
+    environment:
+      IGGY_MEMORY_POOL_SIZE: "512 MiB"        # the documented minimum
+      IGGY_PARTITION_WAL_BYTES_MAX: "16 MiB"  # 50 partitions x 16 MiB = 800 MiB worst case

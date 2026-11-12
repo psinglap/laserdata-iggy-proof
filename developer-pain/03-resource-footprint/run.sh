@@ -3,6 +3,7 @@
 #
 #   ./run.sh                      full run, about 55 minutes
 #   FOOTPRINT_SCALE=0.1 ./run.sh  quick trial, about 8 minutes
+#   PROFILE=sized-2g ./run.sh     server budgets shrunk to fit a 2 GiB node (see stack/sized-2g.yml)
 #   TESTS="restart" ./run.sh      one test only (idle, backlog-2, backlog-10, backlog-50, producer, restart)
 #
 # Starts Laser Stack (LaserData's server and managed backend) with the server capped at
@@ -27,6 +28,9 @@ git -C "$STACK" fetch -q origin "$STACK_SHA" 2>/dev/null; git -C "$STACK" checko
 # Laser Stack's own start script, so the server and managed backend come up exactly as
 # LaserData ships them; it waits until both report healthy. Our only addition is limits.yml.
 export COMPOSE_FILE="$STACK/compose.yaml:$HERE/stack/limits.yml"
+# Server profile: "shipped" (Laser Stack as is) or "sized-2g" (budgets shrunk to fit 2 GiB).
+PROFILE=${PROFILE:-shipped}
+[ "$PROFILE" = "shipped" ] || COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/$PROFILE.yml"
 if [ -n "${FOOTPRINT_DATA_DIR:-}" ]; then
   mkdir -p "$FOOTPRINT_DATA_DIR/iggy" "$FOOTPRINT_DATA_DIR/plane"
   COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/data-disk.yml"
@@ -51,7 +55,7 @@ export FOOTPRINT_SERVER=$SERVER
   echo "  \"host_cpu\": \"$(lscpu | sed -n 's/^Model name:\s*//p' | head -1)\","
   echo "  \"host_cores\": $(nproc), \"host_memory_mib\": $(free -m | awk '/Mem:/{print $2}'),"
   echo "  \"kernel\": \"$(uname -r)\", \"scale\": $FOOTPRINT_SCALE,"
-  echo "  \"tests\": \"$TESTS\","
+  echo "  \"tests\": \"$TESTS\", \"profile\": \"$PROFILE\","
   echo "  \"started\": \"$(date -u +%FT%TZ)\""
   echo "}"
 } > "$OUT/env.json"

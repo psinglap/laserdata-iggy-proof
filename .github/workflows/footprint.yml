@@ -12,6 +12,12 @@ on:
       reps:
         description: "Repetitions, as a JSON list"
         default: "[1,2,3]"
+      profile:
+        description: "Server profile: shipped (Laser Stack as is) or sized-2g (budgets shrunk to fit 2 GiB)"
+        default: "sized-2g"
+      publish:
+        description: "Commit results to results/<profile>/ (only for scale 1)"
+        default: "true"
       tests:
         description: "Tests, as a JSON list: backlog-2, backlog-10, backlog-50, producer, restart"
         default: '["backlog-2","backlog-10","backlog-50","producer","restart"]'
@@ -21,7 +27,7 @@ on:
 permissions:
   contents: write
 
-concurrency: footprint
+concurrency: footprint-${{ inputs.profile || 'sized-2g' }}
 
 env:
   DIR: developer-pain/03-resource-footprint
@@ -56,6 +62,7 @@ jobs:
           FOOTPRINT_DATA_DIR: /data
           # The idle measurement rides along with the shortest test.
           TESTS: ${{ matrix.test == 'restart' && 'idle restart' || matrix.test }}
+          PROFILE: ${{ inputs.profile || 'sized-2g' }}
         run: $DIR/run.sh
       - name: Keep the evidence
         if: always()
@@ -66,7 +73,7 @@ jobs:
 
   publish:
     needs: measure
-    if: always() && (github.event_name == 'schedule' || inputs.scale == '1')
+    if: always() && (github.event_name == 'schedule' || (inputs.scale == '1' && inputs.publish == 'true'))
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -81,11 +88,12 @@ jobs:
           path: incoming
       - name: Merge, summarize, chart
         run: |
-          rm -rf $DIR/results && mkdir -p $DIR/results
-          python $DIR/footprint/merge.py incoming $DIR/results
-          python $DIR/footprint/summarize.py $DIR/results \
+          R=$DIR/results/${{ inputs.profile || 'sized-2g' }}
+          rm -rf $R && mkdir -p $R
+          python $DIR/footprint/merge.py incoming $R
+          python $DIR/footprint/summarize.py $R \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          python $DIR/footprint/charts.py $DIR/results
+          python $DIR/footprint/charts.py $R
       - name: Commit results
         run: |
           git config user.name "LaserData footprint bot"
