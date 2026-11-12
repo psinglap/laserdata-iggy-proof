@@ -1,0 +1,29 @@
+{
+  "records_confirmed": 1615400,
+  "received_unique": 1615400,
+  "missing_confirmed": 0,
+  "duplicates": 0,
+  "missing_ranges": [],
+  "consumer_errors": {
+    "FilterError: filter: catalog_unavailable: the control log head is unreadable, retry: control head confirmation timed out": 1
+  },
+  "consumer_recreated": 0,
+  "gaps": [
+    {
+      "from": 1794510969.7912598,
+      "to": 1794510970.4442747
+    },
+    {
+      "from": 1794511012.6408253,
+      "to": 1794511031.7332911
+    },
+    {
+      "from": 1794511031.7490098,
+      "to": 1794511034.0566804
+    },
+    {
+      "from": 1794511145.0406554,
+      "to": 1794511161.297004
+    }
+  ]
+}
