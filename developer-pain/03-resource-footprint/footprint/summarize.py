@@ -190,7 +190,7 @@ def readme(s: dict) -> str:
                      f"{fmt(b['server_container_peak_mib'])} | {fmt(b['drain_seconds'])} | {fmt(b['records_per_second'])} | {fmt(b['missing'])} |")
     pp = a["producer_pause"]
     lines += [
-        "", "## 2. Producer for 30 minutes at 20,000 records/s, server paused for 60 s halfway", "",
+        "", "## 2. Producer for 30 minutes at 8,000 records/s, server paused for 60 s halfway", "",
         "| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Failed writes | Missing |",
         "|---|---|---|---|---|---|---|---|",
         f"| {fmt(pp['producer_rss_before_median_mib'])} | {fmt(pp['producer_rss_during_pause_peak_mib'])} | {fmt(pp['producer_rss_after_peak_mib'])} | "

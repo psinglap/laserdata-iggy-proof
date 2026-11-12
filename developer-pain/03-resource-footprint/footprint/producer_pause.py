@@ -5,7 +5,7 @@ up in client-side buffers, and the only workaround was to shrink those buffers b
 
 What this does:
   produce  one Laser SDK producer in background (buffered) mode, with the SDK's default
-           buffer budget, sends 20,000 records/s (1 KiB each) for 30 minutes. Halfway, the
+           buffer budget, sends 8,000 records/s (1 KiB each) for 30 minutes. Halfway, the
            server container is paused (`docker pause`) for 60 seconds, so every send has
            nowhere to go and the client buffer fills.
   consume  a Laser SDK consumer group reads the same topic live and checks every record.
@@ -29,7 +29,7 @@ import laser_sdk as ls
 
 TEST = "producer_pause"
 STREAM, TOPIC = "fp-pause", "events"
-RATE = 20_000
+RATE = 8_000  # below what one Python consumer process sustains (~10-16K/s), so it never falls behind
 PARTITIONS = 8
 PAUSE_SECONDS = 60
 SERVER = os.environ.get("FOOTPRINT_SERVER", "laser-stack-iggy-1")
@@ -77,7 +77,7 @@ async def produce() -> int:
         topic = laser.stream(STREAM).topic(TOPIC)
         producer = topic.producer(
             partitions=PARTITIONS, create_stream=True,
-            expire_after_ms=10 * 60 * 1000,  # 10 minutes of retention keeps the runner's disk in bounds
+            never_expire=True,  # nothing may expire before the consumer has checked it
             background=ls.BackgroundConfig(error_callback=on_error))  # SDK default buffer budget
         await producer.init()
         c.set_phase(TEST, "steady-before")
