@@ -32,6 +32,7 @@ to this folder. Severity is our guess; please correct it.
 | 11 | Low | Transient `ProtocolError` right after a crash restart |
 | 12 | Low | OOM kills are invisible to `docker inspect` (`OOMKilled: false`) because of `init: true` |
 | 13 | Low | Startup warnings: missing `core/server/config.toml`, random JWT secret |
+| 14 | Low (UX) | Console: signing in with an email whose domain is claimed by an organization shows "No organization yet" with no reason and a dead-end button |
 
 ---
 
@@ -182,3 +183,26 @@ the Docker flag misses it. Worth a note in Laser Stack, or a startup log line on
 Every start logs `Configuration file not found at path: 'core/server/config.toml'` and
 `JWT encoding and decoding secrets are not configured - generated a random secret`. Harmless for SDK
 clients; could be quieter in Laser Stack.
+
+## 14. Console: domain-claimed sign-in is a dead end (UX)
+
+**What happened.** Signing in to laserdata.cloud with a `@laserdata.com` Google account shows:
+
+> **No organization yet** · Your account is not a member of any organization. Ask an organization owner for an invitation. · [Go to your workspace]
+
+The real reason (explained by engineering): the `laserdata.com` domain is claimed by an existing
+organization, so accounts on that domain can only be invited or auto-joined, depending on the
+owner's settings. The screen doesn't say that, doesn't say who to ask, and "Go to your workspace"
+leads nowhere because there is no workspace.
+
+**Suggested copy.**
+
+- Title: **Your email domain belongs to an organization**
+- Body: Accounts with a **@laserdata.com** address join the **LaserData** organization; they can't
+  create their own. An owner of that organization needs to add you.
+- Primary button: **Request to join** (notifies the organization's owners). If auto-join is on:
+  **Join LaserData**. After a request: title **Request sent**, button **Check again**, and
+  "We've told LaserData's owners. You'll get an email when you're added."
+- Secondary: **Sign in with a different account**. Small print: "Why am I seeing this?" (doc link).
+- If showing the organization name is a privacy concern, use "an existing organization".
+- Remove "Go to your workspace" on this screen.
