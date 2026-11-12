@@ -15,7 +15,7 @@ MACHINE=${MACHINE:-n2-standard-4}       # 4 dedicated vCPU, 16 GB, for each VM
 PROFILE=${PROFILE:-sized-2g}; SCALE=${FOOTPRINT_SCALE:-1}; REP=${REP:-1}
 TESTS=${TESTS:-backlog-2 backlog-10 backlog-50 producer restart}
 REF=${REF:-$(git -C "$HERE" rev-parse HEAD)}
-RUN=fp$(date +%m%d%H%M)
+RUN=fp$(date +%m%d%H%M)r$REP
 OUT="$HERE/results/$PROFILE"; IN="$OUT/incoming"; mkdir -p "$IN"
 g() { gcloud --project "$PROJECT" --quiet "$@"; }
 sshv() { local vm=$1; shift; g compute ssh "$vm" --zone "$ZONE" --command "$*"; }
