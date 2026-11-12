@@ -37,7 +37,10 @@ for rep, parts in groups.items():
                 if f.name == "status.json":
                     status.update(json.loads(f.read_text()))
                 elif f.name == "server-state.json":
-                    states[test] = json.loads(f.read_text())
+                    try:
+                        states[test] = json.loads(f.read_text())
+                    except json.JSONDecodeError:
+                        states[test] = {"unreadable": f.read_text()[:200]}
                 elif f.name == "env.json":
                     shutil.copy(f, out / f"env-{test}.json")
                     if not (out / "env.json").exists():
