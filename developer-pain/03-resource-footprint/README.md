@@ -73,9 +73,9 @@ python footprint/consumer_backlog.py preload --partitions 50
 
 ## Good to know
 
-- GitHub-hosted runners mount their disks without write barriers. LaserData's managed backend
-  keeps its data only on disks with write barriers, so the workflow creates one
-  (`stack/data-disk.yml`). Local runs on a normal disk don't need it.
+- LaserData's managed backend keeps its data only on disks with write barriers. Some CI runners and
+  cloud images mount disks without them; `stack/data-disk.yml` shows how to give it a proper disk.
+  Normal cloud persistent disks and local disks need nothing.
 - The test consumer is one Python process handling one record at a time, so it reads roughly
   8,000–13,000 records/s. That is the test client's pace, so the results make no throughput claims.
 - A long-running service should rebuild its consumer if the live stream ends after a long outage;

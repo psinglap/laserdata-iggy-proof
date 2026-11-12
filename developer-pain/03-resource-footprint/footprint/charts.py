@@ -39,7 +39,7 @@ def heading(fig, title: str, subtitle: str) -> None:
     fig.text(0.0, 1.0, subtitle, fontsize=10.5, color=MUTED, transform=fig.axes[0].transAxes)
 
 
-WHERE = "GitHub-hosted runner"
+WHERE = "Laser Stack"
 
 
 def footer(fig, env: dict, note: str = "") -> None:
