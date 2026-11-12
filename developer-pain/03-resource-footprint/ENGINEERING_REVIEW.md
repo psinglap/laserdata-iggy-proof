@@ -28,7 +28,7 @@ to this folder. Severity is our guess; please correct it.
 | 7 | Medium | laser-plane crash-loops on `nobarrier` volumes; Laser Stack `scripts/up` then times out after 120 s |
 | 8 | Low | Consumer groups fail with `catalog_unavailable` when laser-plane is not up |
 | 9 | Low | Restart takes 8–12 s to reopen ~4 GiB; producer sends block 12–22 s without an error |
-| 10 | Low | Background producer reports `unknown outcome` for writes that were in fact stored |
+| 10 | Low | Background producer reports `unknown outcome` during an outage; sometimes the writes were stored, sometimes not |
 | 11 | Low | Transient `ProtocolError` right after a crash restart |
 | 12 | Low | OOM kills are invisible to `docker inspect` (`OOMKilled: false`) because of `init: true` |
 | 13 | Low | Startup warnings: missing `core/server/config.toml`, random JWT secret |
@@ -159,12 +159,15 @@ producer sends blocked 12–22 s and the consumer resumed after 14–22 s, witho
 on disk it was ~1 s. **Question:** expected scaling? Any setting that shortens start-up?
 **Evidence:** `*/results/sized-2g/README.md`, section 3; `restart-orchestrator.json`.
 
-## 10. `unknown outcome` for stored writes
+## 10. `unknown outcome` during an outage
 
-Background producer during the freeze: 2 writes (1,100 records) failed with
-`PublishFailedError('publish failed to fp-pause/events: Operation 17513 has an unknown outcome')` and
-`Request transiently not accepted; retry, on any replica`. All 1,100 records were in fact stored and
-read. Reporting them is correct; a doc note on how to retry them without duplicates would help.
+Background producer during the 60 s freeze: 2 writes (1,100 records) failed in every run with
+`PublishFailedError('publish failed to fp-pause/events: Operation 71415 has an unknown outcome')`
+(and once `Request transiently not accepted; retry, on any replica`). In 5 of 6 runs (3 GitHub,
+3 Google Cloud) all 1,100 were in fact stored. In Google Cloud repetition 3, **1,000 of them
+(sequence 7,205,600–7,206,599) were not**. No record went missing without the application being
+told, so the SDK behaved correctly. A doc note on re-sending "unknown outcome" records without
+creating duplicates would help. Evidence: `gcp-vm/results/sized-2g/rep-3/producer_pause-*.json`.
 
 ## 11. Transient `ProtocolError` after a crash
 
