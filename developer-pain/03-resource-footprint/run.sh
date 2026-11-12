@@ -21,10 +21,11 @@ rm -rf "$OUT" && mkdir -p "$OUT"
 [ -d "$STACK/.git" ] || git clone -q https://github.com/laserdata/laser-stack "$STACK"
 git -C "$STACK" fetch -q origin "$STACK_SHA" 2>/dev/null; git -C "$STACK" checkout -q "$STACK_SHA"
 [ -f "$STACK/.env" ] || cp "$STACK/.env.example" "$STACK/.env"
-compose() { docker compose --project-directory "$STACK" -f "$STACK/compose.yaml" -f "$HERE/stack/limits.yml" "$@"; }
-
-compose pull -q
-compose up -d
+# Laser Stack's own start script, so the server and managed backend come up exactly as
+# LaserData ships them; it waits until both report healthy. Our only addition is limits.yml.
+export COMPOSE_FILE="$STACK/compose.yaml:$HERE/stack/limits.yml"
+compose() { docker compose --project-directory "$STACK" --env-file "$STACK/.env" "$@"; }
+CI=true "$STACK/scripts/up" || { compose logs --no-color --tail 200; exit 1; }
 until curl -fs http://127.0.0.1:3000/ping >/dev/null; do sleep 1; done
 SERVER=$(compose ps -q iggy); PLANE=$(compose ps -q plane)
 export FOOTPRINT_SERVER=$SERVER
@@ -88,6 +89,7 @@ phase done done
 touch "$OUT/stop"; wait $SAMPLER
 docker inspect -f '{"oom_killed": {{.State.OOMKilled}}, "restart_count": {{.RestartCount}}}' "$SERVER" > "$OUT/server-state.json"
 compose logs --no-color iggy > "$OUT/server.log" 2>&1
+compose logs --no-color plane > "$OUT/backend.log" 2>&1
 (IFS=,; echo "{${STATUS[*]}}") > "$OUT/status.json"
 cat "$OUT/status.json" "$OUT/server-state.json"
 compose down -v

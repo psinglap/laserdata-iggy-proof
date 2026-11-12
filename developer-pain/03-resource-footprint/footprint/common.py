@@ -74,6 +74,11 @@ def event(test: str, name: str, **fields) -> None:
         f.write(json.dumps({"t": _clock(), "test": test, "event": name, **fields}) + "\n")
 
 
+def load_result(name: str) -> dict:
+    path = OUT / f"{name}.json"
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
 def write_result(name: str, data: dict) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{name}.json").write_text(json.dumps(data, indent=2))

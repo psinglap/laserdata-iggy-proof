@@ -57,10 +57,20 @@ def pause_server(after_seconds: float) -> None:
 async def produce() -> int:
     c.register_client("producer")
     seconds, total = planned_seconds(), planned_records()
-    failures: list[str] = []
+    failures: list[dict] = []
+    reported: list[int] = []  # sequence numbers the SDK reported to the app as not confirmed
 
     def on_error(error) -> None:
-        failures.append(repr(error)[:300])
+        detail = {"error": repr(error)[:300]}
+        for field in ("committed", "unconfirmed"):
+            items = getattr(error, field, None) or []
+            detail[field] = items if isinstance(items, int) else len(items)
+            if field == "unconfirmed" and not isinstance(items, int):
+                for item in items:
+                    data = item if isinstance(item, (bytes, bytearray)) else getattr(item, "payload", None)
+                    if data:
+                        reported.append(c.seq_of(bytes(data)))
+        failures.append(detail)
 
     laser = await c.connect()
     try:
@@ -87,14 +97,16 @@ async def produce() -> int:
         try:
             await producer.shutdown()  # flushes the buffer
         except Exception as error:
-            failures.append(repr(error)[:300])
+            on_error(error)
         took = time.perf_counter() - start
     finally:
         await laser.close()
         c.unregister_client("producer")
     (c.OUT / "pause_total").write_text(str(total))
     result = {"records_sent": total, "rate_target": RATE, "seconds": round(took, 1),
-              "pause_seconds": PAUSE_SECONDS, "failed_writes": len(failures), "failures": failures[:5],
+              "pause_seconds": PAUSE_SECONDS, "failed_writes": len(failures), "failures": failures[:10],
+              "records_reported_unconfirmed": sum(f.get("unconfirmed", 0) for f in failures),
+              "reported_unconfirmed_seqs": sorted(reported),
               "producer_settings": "Laser SDK background mode, default buffer budget, block when full"}
     c.write_result(f"{TEST}-producer", result)
     print(result)
@@ -131,11 +143,16 @@ async def consume() -> int:
     finally:
         await laser.close()
         c.unregister_client("consumer")
+    missing = [i for i, seen in enumerate(tracker.seen) if not seen]
+    reported = set(c.load_result(f"{TEST}-producer").get("reported_unconfirmed_seqs", []))
     result = {"records_expected": total, "received_unique": tracker.unique,
-              "duplicates": tracker.duplicates, "missing": total - tracker.unique}
+              "duplicates": tracker.duplicates, "missing": len(missing),
+              # A record is only lost if it is missing AND the SDK never told the app it failed.
+              "missing_not_reported": len([s for s in missing if s not in reported]),
+              "missing_seqs_sample": missing[:50]}
     c.write_result(f"{TEST}-consumer", result)
     print(result)
-    return 0 if result["missing"] == 0 else 1
+    return 0 if result["missing_not_reported"] == 0 else 1
 
 
 async def cleanup() -> None:
