@@ -113,13 +113,14 @@ def one_rep(rep: Path) -> dict:
     srv = [r for r in rows if r["target"] == "server" and r["test"] == "restart"]
     steady = [r for r in srv if r["phase"] == "steady"]
     restarts = {}
-    for r in orch:
+    for i, r in enumerate(orch):
         began = r["began"]
-        window = [s for s in srv if began <= s["t"] <= began + 60]
+        until = orch[i + 1]["began"] if i + 1 < len(orch) else began + 600  # never reach into the next restart
+        window = [s for s in srv if began <= s["t"] <= min(began + 60, until)]
         blocked = rprod.get("outages", []) + rprod.get("stalls", [])
-        outage = max((o for o in blocked if o["to"] >= began and o["from"] <= began + 120),
+        outage = max((o for o in blocked if began - 1 <= o["to"] < until and o["from"] < until),
                      key=lambda o: o["to"], default=None)
-        gap = max((g for g in rcons.get("gaps", []) if g["to"] >= began and g["from"] <= began + 120),
+        gap = max((g for g in rcons.get("gaps", []) if began - 1 <= g["to"] < until),
                   key=lambda g: g["to"], default=None)
         restarts[r["kind"]] = {
             "seconds_to_ready": r["seconds_to_ready"],
@@ -156,7 +157,7 @@ def fmt(cell, unit=""):
     if not isinstance(cell, dict) or "median" not in cell:
         return "n/a"
     m, lo, hi = cell["median"], cell["min"], cell["max"]
-    r = f"{m:,.0f}{unit}" if m >= 10 else f"{m:,.1f}{unit}"
+    r = f"{m:,.0f}{unit}" if m >= 10 or float(m).is_integer() else f"{m:,.1f}{unit}"
     return r if lo == hi else f"{r} ({lo:,.0f}–{hi:,.0f})"
 
 
