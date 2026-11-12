@@ -165,8 +165,8 @@ def readme(s: dict) -> str:
     env, a = s["env"], s["combined"]
     lines = [
         "# Footprint results", "",
-        f"Measured {env.get('started', '')[:10]} by [this GitHub Actions run]({s.get('run_url', '')}), "
-        f"{s['repetitions']} repetitions, each on a fresh GitHub-hosted machine "
+        f"Measured {env.get('started', '')[:10]} by [{s.get('run_label') or 'this GitHub Actions run'}]({s.get('run_url', '')}), "
+        f"{s['repetitions']} repetition{'s' if s['repetitions'] != 1 else ''}, each on {s.get('where') or 'a fresh GitHub-hosted machine'} "
         f"({env.get('host_cores')} vCPU {env.get('host_cpu')}, {env.get('host_memory_mib', 0) // 1024} GiB, kernel {env.get('kernel')}).",
         "",
         f"Server: Laser Streams `{env.get('server_version') or 'see digest'}` "
@@ -217,11 +217,13 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("results")
     p.add_argument("--run-url", default="")
+    p.add_argument("--run-label", default="")
+    p.add_argument("--where", default="")
     args = p.parse_args()
     root = Path(args.results)
     reps = sorted(d for d in root.glob("rep-*") if (d / "samples.csv").exists())
     per_rep = {d.name: one_rep(d) for d in reps}
-    summary = {"run_url": args.run_url, "repetitions": len(reps),
+    summary = {"run_url": args.run_url, "run_label": args.run_label, "where": args.where, "repetitions": len(reps),
                "env": load_json(reps[0] / "env.json") if reps else {},
                "per_repetition": per_rep, "combined": combine(list(per_rep.values()))}
     (root / "summary.json").write_text(json.dumps(summary, indent=2))
