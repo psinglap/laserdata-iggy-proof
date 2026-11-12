@@ -1,0 +1,51 @@
+{
+  "records_expected": 14400000,
+  "received_unique": 14400000,
+  "duplicates": 975,
+  "missing": 0,
+  "missing_not_reported": 0,
+  "missing_ranges": [],
+  "consumer_errors": {
+    "rebuild TransportError: Operation 201 has an unknown outcome": 1,
+    "InvalidError: invalid: the live consumer stream ended": 1
+  },
+  "consumer_recreated": 2,
+  "gaps": [
+    {
+      "from": 1794516557.4699037,
+      "to": 1794516560.4314137
+    },
+    {
+      "from": 1794516582.246519,
+      "to": 1794516582.8422234
+    },
+    {
+      "from": 1794517123.8041403,
+      "to": 1794517124.4278758
+    },
+    {
+      "from": 1794517153.9603913,
+      "to": 1794517154.5473132
+    },
+    {
+      "from": 1794517184.0906446,
+      "to": 1794517184.6210887
+    },
+    {
+      "from": 1794517274.4156482,
+      "to": 1794517275.135956
+    },
+    {
+      "from": 1794517334.5661728,
+      "to": 1794517335.2448287
+    },
+    {
+      "from": 1794517394.765735,
+      "to": 1794517395.3830533
+    },
+    {
+      "from": 1794517461.1696858,
+      "to": 1794517556.006168
+    }
+  ]
+}

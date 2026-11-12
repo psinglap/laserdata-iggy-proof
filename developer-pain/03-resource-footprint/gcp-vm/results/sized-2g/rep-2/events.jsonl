@@ -1,0 +1,42 @@
+{"t": 1794516557.3943255, "test": "consumer_backlog", "event": "phase", "phase": "preload-10p"}
+{"t": 1794516623.809972, "test": "consumer_backlog", "event": "preloaded", "partitions": 10, "records": 7000000, "seconds": 66.4}
+{"t": 1794516623.833580129, "test": "consumer_backlog", "event": "phase", "phase": "settle-10p"}
+{"t": 1794516633.9281874, "test": "consumer_backlog", "event": "phase", "phase": "consume-10p"}
+{"t": 1794517600.8212278, "test": "consumer_backlog", "event": "consumed", "partitions": 10, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 966.8, "records_per_second": 7240, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794517601.080108356, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794516558.6153846, "test": "consumer_backlog", "event": "phase", "phase": "preload-2p"}
+{"t": 1794516614.053287, "test": "consumer_backlog", "event": "preloaded", "partitions": 2, "records": 7000000, "seconds": 55.4}
+{"t": 1794516614.071900460, "test": "consumer_backlog", "event": "phase", "phase": "settle-2p"}
+{"t": 1794516624.1652446, "test": "consumer_backlog", "event": "phase", "phase": "consume-2p"}
+{"t": 1794517511.595511, "test": "consumer_backlog", "event": "consumed", "partitions": 2, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 887.3, "records_per_second": 7889, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794517511.798204353, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794516557.553557, "test": "consumer_backlog", "event": "phase", "phase": "preload-50p"}
+{"t": 1794516614.488255, "test": "consumer_backlog", "event": "preloaded", "partitions": 50, "records": 7000000, "seconds": 56.9}
+{"t": 1794516614.506661180, "test": "consumer_backlog", "event": "phase", "phase": "settle-50p"}
+{"t": 1794516624.5871797, "test": "consumer_backlog", "event": "phase", "phase": "consume-50p"}
+{"t": 1794517526.5821786, "test": "consumer_backlog", "event": "consumed", "partitions": 50, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 901.9, "records_per_second": 7761, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794517526.777762400, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794516560.4221435, "test": "producer_pause", "event": "phase", "phase": "steady-before"}
+{"t": 1794517460.4238918, "test": "producer_pause", "event": "phase", "phase": "server-paused"}
+{"t": 1794517461.104269, "test": "producer_pause", "event": "server_paused"}
+{"t": 1794517481.1860158, "test": "producer_pause", "event": "consumer_recreated", "silent_seconds": 20.0}
+{"t": 1794517521.7363675, "test": "producer_pause", "event": "phase", "phase": "after-resume"}
+{"t": 1794517521.736473, "test": "producer_pause", "event": "server_resumed"}
+{"t": 1794517555.492484, "test": "producer_pause", "event": "consumer_error", "error": "InvalidError: invalid: the live consumer stream ended"}
+{"t": 1794517555.6931407, "test": "producer_pause", "event": "consumer_recreated", "silent_seconds": 94.5}
+{"t": 1794518549.044600155, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794516555.993473147, "test": "idle", "event": "phase", "phase": "idle"}
+{"t": 1794516676.1119194, "test": "restart", "event": "phase", "phase": "preload"}
+{"t": 1794516710.1377583, "test": "restart", "event": "preloaded", "records": 4000000}
+{"t": 1794516713.2813606, "test": "restart", "event": "phase", "phase": "steady"}
+{"t": 1794516731.5433354, "test": "restart", "event": "producer_stall", "seconds": 0.58}
+{"t": 1794516761.3182318, "test": "restart", "event": "producer_stall", "seconds": 0.25}
+{"t": 1794516773.2820191, "test": "restart", "event": "phase", "phase": "graceful-restart"}
+{"t": 1794516785.808705, "test": "restart", "event": "restart", "kind": "graceful", "began": 1794516773.282066, "seconds_to_ready": 12.53}
+{"t": 1794516785.8090806, "test": "restart", "event": "phase", "phase": "after-graceful"}
+{"t": 1794516787.1432776, "test": "restart", "event": "producer_stall", "seconds": 13.16}
+{"t": 1794516905.8096836, "test": "restart", "event": "phase", "phase": "crash-restart"}
+{"t": 1794516913.8360395, "test": "restart", "event": "restart", "kind": "crash", "began": 1794516905.8097374, "seconds_to_ready": 8.03}
+{"t": 1794516913.8364298, "test": "restart", "event": "phase", "phase": "after-crash"}
+{"t": 1794516915.8009956, "test": "restart", "event": "producer_stall", "seconds": 9.29}
+{"t": 1794517036.181811351, "test": "done", "event": "phase", "phase": "done"}

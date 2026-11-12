@@ -2,7 +2,7 @@
   "run_url": "https://github.com/psinglap/laserdata-iggy-proof/tree/main/developer-pain/03-resource-footprint/gcp-vm",
   "run_label": "gcp-vm/run-gcp.sh",
   "where": "Google Cloud asia-south1-a: a server VM and a separate client VM per test, both n2-standard-4 with 4 dedicated vCPU; server data on a 100 GB SSD persistent disk",
-  "repetitions": 1,
+  "repetitions": 3,
   "env": {
     "server_image": "sha256:348e27e6dca7a1a1b500e89d028dccc61ce7834ea9d76f4e621b3da6ed00a941",
     "server_image_digest": "laserdatainc/iggy-server@sha256:348e27e6dca7a1a1b500e89d028dccc61ce7834ea9d76f4e621b3da6ed00a941",
@@ -120,7 +120,9 @@
         "records_sent": 14400000,
         "failed_writes": 2,
         "missing": 0,
-        "duplicates": 975
+        "duplicates": 975,
+        "missing_not_reported": 0,
+        "records_reported_unconfirmed": 1100
       },
       "restart": {
         "server_rss_steady_mib": 144.2,
@@ -147,524 +149,812 @@
         "missing_confirmed": 0,
         "duplicates": 0
       }
+    },
+    "rep-2": {
+      "status": {
+        "consumer_backlog_10p": "passed",
+        "consumer_backlog_2p": "passed",
+        "consumer_backlog_50p": "passed",
+        "producer_pause_producer": "passed",
+        "producer_pause_consumer": "passed",
+        "restart_orchestrator": "passed",
+        "restart_producer": "passed",
+        "restart_consumer": "passed"
+      },
+      "server_state": {
+        "backlog-10": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "backlog-2": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "backlog-50": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "producer": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "restart": {
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      },
+      "idle": {
+        "server_rss_mib": 122.9,
+        "server_container_mib": 102.3,
+        "server_cpu_pct": 1.8,
+        "backend_rss_mib": 53.1
+      },
+      "consumer_backlog": {
+        "2": {
+          "consumer_rss_peak_mib": 67.4,
+          "consumer_rss_median_mib": 66.4,
+          "consumer_cpu_median_pct": 108.0,
+          "server_rss_peak_mib": 188.3,
+          "server_anon_peak_mib": 161.9,
+          "server_container_peak_mib": 2048.0,
+          "server_cpu_median_pct": 4.8,
+          "records": 7000000,
+          "missing": 0,
+          "duplicates": 0,
+          "drain_seconds": 887.3,
+          "records_per_second": 7889
+        },
+        "10": {
+          "consumer_rss_peak_mib": 66.6,
+          "consumer_rss_median_mib": 66.6,
+          "consumer_cpu_median_pct": 108.0,
+          "server_rss_peak_mib": 228.9,
+          "server_anon_peak_mib": 202.4,
+          "server_container_peak_mib": 2048.0,
+          "server_cpu_median_pct": 3.9,
+          "records": 7000000,
+          "missing": 0,
+          "duplicates": 0,
+          "drain_seconds": 966.8,
+          "records_per_second": 7240
+        },
+        "50": {
+          "consumer_rss_peak_mib": 67.5,
+          "consumer_rss_median_mib": 66.5,
+          "consumer_cpu_median_pct": 106.0,
+          "server_rss_peak_mib": 274.2,
+          "server_anon_peak_mib": 248.1,
+          "server_container_peak_mib": 2047.9,
+          "server_cpu_median_pct": 7.2,
+          "records": 7000000,
+          "missing": 0,
+          "duplicates": 0,
+          "drain_seconds": 901.9,
+          "records_per_second": 7761
+        }
+      },
+      "producer_pause": {
+        "producer_rss_before_median_mib": 51.9,
+        "producer_rss_during_pause_peak_mib": 82.8,
+        "producer_rss_after_peak_mib": 83.3,
+        "producer_rss_last_minutes_median_mib": 75.1,
+        "producer_growth_before_mib_per_hour": 3.5,
+        "producer_growth_after_mib_per_hour": 0.0,
+        "consumer_rss_peak_mib": 71.5,
+        "server_rss_peak_mib": 192.7,
+        "records_sent": 14400000,
+        "failed_writes": 2,
+        "missing": 0,
+        "duplicates": 975,
+        "missing_not_reported": 0,
+        "records_reported_unconfirmed": 1100
+      },
+      "restart": {
+        "server_rss_steady_mib": 145.7,
+        "server_cpu_steady_pct": 19.1,
+        "restarts": {
+          "graceful": {
+            "seconds_to_ready": 12.53,
+            "seconds_until_producer_write": 13.9,
+            "seconds_until_consumer_record": 18.2,
+            "server_rss_peak_60s_mib": 237.5,
+            "server_container_peak_60s_mib": 2048.0,
+            "server_cpu_peak_60s_pct": 35.8
+          },
+          "crash": {
+            "seconds_to_ready": 8.03,
+            "seconds_until_producer_write": 10.0,
+            "seconds_until_consumer_record": 11.2,
+            "server_rss_peak_60s_mib": 169.3,
+            "server_container_peak_60s_mib": 1879.5,
+            "server_cpu_peak_60s_pct": 74.9
+          }
+        },
+        "records_confirmed": 1617700,
+        "missing_confirmed": 0,
+        "duplicates": 0
+      }
+    },
+    "rep-3": {
+      "status": {
+        "consumer_backlog_10p": "passed",
+        "consumer_backlog_2p": "passed",
+        "consumer_backlog_50p": "passed",
+        "producer_pause_producer": "passed",
+        "producer_pause_consumer": "passed",
+        "restart_orchestrator": "passed",
+        "restart_producer": "passed",
+        "restart_consumer": "passed"
+      },
+      "server_state": {
+        "backlog-10": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "backlog-2": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "backlog-50": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "producer": {
+          "oom_killed": false,
+          "restart_count": 0
+        },
+        "restart": {
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      },
+      "idle": {
+        "server_rss_mib": 129.9,
+        "server_container_mib": 109.1,
+        "server_cpu_pct": 2.6,
+        "backend_rss_mib": 53.2
+      },
+      "consumer_backlog": {
+        "2": {
+          "consumer_rss_peak_mib": 71.7,
+          "consumer_rss_median_mib": 70.7,
+          "consumer_cpu_median_pct": 108.0,
+          "server_rss_peak_mib": 181.7,
+          "server_anon_peak_mib": 154.9,
+          "server_container_peak_mib": 2048.0,
+          "server_cpu_median_pct": 4.6,
+          "records": 7000000,
+          "missing": 0,
+          "duplicates": 0,
+          "drain_seconds": 897.1,
+          "records_per_second": 7803
+        },
+        "10": {
+          "consumer_rss_peak_mib": 70.8,
+          "consumer_rss_median_mib": 70.7,
+          "consumer_cpu_median_pct": 109.0,
+          "server_rss_peak_mib": 228.2,
+          "server_anon_peak_mib": 201.9,
+          "server_container_peak_mib": 2048.0,
+          "server_cpu_median_pct": 4.7,
+          "records": 7000000,
+          "missing": 0,
+          "duplicates": 0,
+          "drain_seconds": 887.5,
+          "records_per_second": 7887
+        },
+        "50": {
+          "consumer_rss_peak_mib": 68.0,
+          "consumer_rss_median_mib": 64.2,
+          "consumer_cpu_median_pct": 109.0,
+          "server_rss_peak_mib": 266.5,
+          "server_anon_peak_mib": 240.2,
+          "server_container_peak_mib": 2048.0,
+          "server_cpu_median_pct": 4.9,
+          "records": 7000000,
+          "missing": 0,
+          "duplicates": 0,
+          "drain_seconds": 865.1,
+          "records_per_second": 8091
+        }
+      },
+      "producer_pause": {
+        "producer_rss_before_median_mib": 52.0,
+        "producer_rss_during_pause_peak_mib": 82.3,
+        "producer_rss_after_peak_mib": 84.6,
+        "producer_rss_last_minutes_median_mib": 61.5,
+        "producer_growth_before_mib_per_hour": 1.6,
+        "producer_growth_after_mib_per_hour": -0.0,
+        "consumer_rss_peak_mib": 72.3,
+        "server_rss_peak_mib": 278.0,
+        "records_sent": 14400000,
+        "failed_writes": 2,
+        "missing": 1000,
+        "duplicates": 975,
+        "missing_not_reported": 0,
+        "records_reported_unconfirmed": 1100
+      },
+      "restart": {
+        "server_rss_steady_mib": 140.7,
+        "server_cpu_steady_pct": 24.6,
+        "restarts": {
+          "graceful": {
+            "seconds_to_ready": 12.71,
+            "seconds_until_producer_write": 19.9,
+            "seconds_until_consumer_record": 19.9,
+            "server_rss_peak_60s_mib": 259.3,
+            "server_container_peak_60s_mib": 2048.0,
+            "server_cpu_peak_60s_pct": 64.5
+          },
+          "crash": {
+            "seconds_to_ready": 8.29,
+            "seconds_until_producer_write": 14.0,
+            "seconds_until_consumer_record": 14.7,
+            "server_rss_peak_60s_mib": 157.2,
+            "server_container_peak_60s_mib": 2047.8,
+            "server_cpu_peak_60s_pct": 115.3
+          }
+        },
+        "records_confirmed": 1619900,
+        "missing_confirmed": 0,
+        "duplicates": 0
+      }
     }
   },
   "combined": {
     "status": {
       "consumer_backlog_10p": [
+        "passed",
+        "passed",
         "passed"
       ],
       "consumer_backlog_2p": [
+        "passed",
+        "passed",
         "passed"
       ],
       "consumer_backlog_50p": [
+        "passed",
+        "passed",
         "passed"
       ],
       "producer_pause_producer": [
+        "passed",
+        "passed",
         "passed"
       ],
       "producer_pause_consumer": [
+        "passed",
+        "passed",
         "passed"
       ],
       "restart_orchestrator": [
+        "passed",
+        "passed",
         "passed"
       ],
       "restart_producer": [
+        "passed",
+        "passed",
         "passed"
       ],
       "restart_consumer": [
+        "passed",
+        "passed",
         "passed"
       ]
     },
     "server_state": {
       "backlog-10": {
         "oom_killed": [
+          false,
+          false,
           false
         ],
         "restart_count": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         }
       },
       "backlog-2": {
         "oom_killed": [
+          false,
+          false,
           false
         ],
         "restart_count": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         }
       },
       "backlog-50": {
         "oom_killed": [
+          false,
+          false,
           false
         ],
         "restart_count": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         }
       },
       "producer": {
         "oom_killed": [
+          false,
+          false,
           false
         ],
         "restart_count": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         }
       },
       "restart": {
         "oom_killed": [
+          false,
+          false,
           false
         ],
         "restart_count": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         }
       }
     },
     "idle": {
       "server_rss_mib": {
-        "median": 120.5,
+        "median": 122.9,
         "min": 120.5,
-        "max": 120.5,
-        "n": 1
+        "max": 129.9,
+        "n": 3
       },
       "server_container_mib": {
-        "median": 101.3,
+        "median": 102.3,
         "min": 101.3,
-        "max": 101.3,
-        "n": 1
+        "max": 109.1,
+        "n": 3
       },
       "server_cpu_pct": {
-        "median": 1.2,
+        "median": 1.8,
         "min": 1.2,
-        "max": 1.2,
-        "n": 1
+        "max": 2.6,
+        "n": 3
       },
       "backend_rss_mib": {
-        "median": 51.8,
+        "median": 53.1,
         "min": 51.8,
-        "max": 51.8,
-        "n": 1
+        "max": 53.2,
+        "n": 3
       }
     },
     "consumer_backlog": {
       "2": {
         "consumer_rss_peak_mib": {
           "median": 71.6,
-          "min": 71.6,
-          "max": 71.6,
-          "n": 1
+          "min": 67.4,
+          "max": 71.7,
+          "n": 3
         },
         "consumer_rss_median_mib": {
           "median": 70.6,
-          "min": 70.6,
-          "max": 70.6,
-          "n": 1
+          "min": 66.4,
+          "max": 70.7,
+          "n": 3
         },
         "consumer_cpu_median_pct": {
           "median": 108.0,
           "min": 108.0,
           "max": 108.0,
-          "n": 1
+          "n": 3
         },
         "server_rss_peak_mib": {
           "median": 185.0,
-          "min": 185.0,
-          "max": 185.0,
-          "n": 1
+          "min": 181.7,
+          "max": 188.3,
+          "n": 3
         },
         "server_anon_peak_mib": {
           "median": 158.6,
-          "min": 158.6,
-          "max": 158.6,
-          "n": 1
+          "min": 154.9,
+          "max": 161.9,
+          "n": 3
         },
         "server_container_peak_mib": {
-          "median": 2047.9,
+          "median": 2048.0,
           "min": 2047.9,
-          "max": 2047.9,
-          "n": 1
+          "max": 2048.0,
+          "n": 3
         },
         "server_cpu_median_pct": {
-          "median": 4.5,
+          "median": 4.6,
           "min": 4.5,
-          "max": 4.5,
-          "n": 1
+          "max": 4.8,
+          "n": 3
         },
         "records": {
           "median": 7000000,
           "min": 7000000,
           "max": 7000000,
-          "n": 1
+          "n": 3
         },
         "missing": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         },
         "duplicates": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         },
         "drain_seconds": {
-          "median": 899.5,
-          "min": 899.5,
+          "median": 897.1,
+          "min": 887.3,
           "max": 899.5,
-          "n": 1
+          "n": 3
         },
         "records_per_second": {
-          "median": 7782,
+          "median": 7803,
           "min": 7782,
-          "max": 7782,
-          "n": 1
+          "max": 7889,
+          "n": 3
         }
       },
       "10": {
         "consumer_rss_peak_mib": {
           "median": 70.8,
-          "min": 70.8,
+          "min": 66.6,
           "max": 70.8,
-          "n": 1
+          "n": 3
         },
         "consumer_rss_median_mib": {
-          "median": 70.8,
-          "min": 70.8,
+          "median": 70.7,
+          "min": 66.6,
           "max": 70.8,
-          "n": 1
+          "n": 3
         },
         "consumer_cpu_median_pct": {
-          "median": 107.0,
+          "median": 108.0,
           "min": 107.0,
-          "max": 107.0,
-          "n": 1
+          "max": 109.0,
+          "n": 3
         },
         "server_rss_peak_mib": {
-          "median": 217.5,
+          "median": 228.2,
           "min": 217.5,
-          "max": 217.5,
-          "n": 1
+          "max": 228.9,
+          "n": 3
         },
         "server_anon_peak_mib": {
-          "median": 191.0,
+          "median": 201.9,
           "min": 191.0,
-          "max": 191.0,
-          "n": 1
+          "max": 202.4,
+          "n": 3
         },
         "server_container_peak_mib": {
           "median": 2048.0,
           "min": 2048.0,
           "max": 2048.0,
-          "n": 1
+          "n": 3
         },
         "server_cpu_median_pct": {
-          "median": 4.9,
-          "min": 4.9,
+          "median": 4.7,
+          "min": 3.9,
           "max": 4.9,
-          "n": 1
+          "n": 3
         },
         "records": {
           "median": 7000000,
           "min": 7000000,
           "max": 7000000,
-          "n": 1
+          "n": 3
         },
         "missing": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         },
         "duplicates": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         },
         "drain_seconds": {
           "median": 904.5,
-          "min": 904.5,
-          "max": 904.5,
-          "n": 1
+          "min": 887.5,
+          "max": 966.8,
+          "n": 3
         },
         "records_per_second": {
           "median": 7739,
-          "min": 7739,
-          "max": 7739,
-          "n": 1
+          "min": 7240,
+          "max": 7887,
+          "n": 3
         }
       },
       "50": {
         "consumer_rss_peak_mib": {
-          "median": 66.6,
+          "median": 67.5,
           "min": 66.6,
-          "max": 66.6,
-          "n": 1
+          "max": 68.0,
+          "n": 3
         },
         "consumer_rss_median_mib": {
-          "median": 62.7,
+          "median": 64.2,
           "min": 62.7,
-          "max": 62.7,
-          "n": 1
+          "max": 66.5,
+          "n": 3
         },
         "consumer_cpu_median_pct": {
           "median": 107.0,
-          "min": 107.0,
-          "max": 107.0,
-          "n": 1
+          "min": 106.0,
+          "max": 109.0,
+          "n": 3
         },
         "server_rss_peak_mib": {
           "median": 272.4,
-          "min": 272.4,
-          "max": 272.4,
-          "n": 1
+          "min": 266.5,
+          "max": 274.2,
+          "n": 3
         },
         "server_anon_peak_mib": {
           "median": 245.8,
-          "min": 245.8,
-          "max": 245.8,
-          "n": 1
+          "min": 240.2,
+          "max": 248.1,
+          "n": 3
         },
         "server_container_peak_mib": {
           "median": 2048.0,
-          "min": 2048.0,
+          "min": 2047.9,
           "max": 2048.0,
-          "n": 1
+          "n": 3
         },
         "server_cpu_median_pct": {
           "median": 5.2,
-          "min": 5.2,
-          "max": 5.2,
-          "n": 1
+          "min": 4.9,
+          "max": 7.2,
+          "n": 3
         },
         "records": {
           "median": 7000000,
           "min": 7000000,
           "max": 7000000,
-          "n": 1
+          "n": 3
         },
         "missing": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         },
         "duplicates": {
           "median": 0,
           "min": 0,
           "max": 0,
-          "n": 1
+          "n": 3
         },
         "drain_seconds": {
-          "median": 927.2,
-          "min": 927.2,
+          "median": 901.9,
+          "min": 865.1,
           "max": 927.2,
-          "n": 1
+          "n": 3
         },
         "records_per_second": {
-          "median": 7550,
+          "median": 7761,
           "min": 7550,
-          "max": 7550,
-          "n": 1
+          "max": 8091,
+          "n": 3
         }
       }
     },
     "producer_pause": {
       "producer_rss_before_median_mib": {
-        "median": 52.1,
-        "min": 52.1,
+        "median": 52.0,
+        "min": 51.9,
         "max": 52.1,
-        "n": 1
+        "n": 3
       },
       "producer_rss_during_pause_peak_mib": {
-        "median": 83.0,
-        "min": 83.0,
+        "median": 82.8,
+        "min": 82.3,
         "max": 83.0,
-        "n": 1
+        "n": 3
       },
       "producer_rss_after_peak_mib": {
         "median": 84.3,
-        "min": 84.3,
-        "max": 84.3,
-        "n": 1
+        "min": 83.3,
+        "max": 84.6,
+        "n": 3
       },
       "producer_rss_last_minutes_median_mib": {
         "median": 71.7,
-        "min": 71.7,
-        "max": 71.7,
-        "n": 1
+        "min": 61.5,
+        "max": 75.1,
+        "n": 3
       },
       "producer_growth_before_mib_per_hour": {
-        "median": 15.0,
-        "min": 15.0,
+        "median": 3.5,
+        "min": 1.6,
         "max": 15.0,
-        "n": 1
+        "n": 3
       },
       "producer_growth_after_mib_per_hour": {
         "median": 0.0,
         "min": 0.0,
         "max": 0.0,
-        "n": 1
+        "n": 3
       },
       "consumer_rss_peak_mib": {
         "median": 71.6,
-        "min": 71.6,
-        "max": 71.6,
-        "n": 1
+        "min": 71.5,
+        "max": 72.3,
+        "n": 3
       },
       "server_rss_peak_mib": {
         "median": 193.8,
-        "min": 193.8,
-        "max": 193.8,
-        "n": 1
+        "min": 192.7,
+        "max": 278.0,
+        "n": 3
       },
       "records_sent": {
         "median": 14400000,
         "min": 14400000,
         "max": 14400000,
-        "n": 1
+        "n": 3
       },
       "failed_writes": {
         "median": 2,
         "min": 2,
         "max": 2,
-        "n": 1
+        "n": 3
       },
       "missing": {
         "median": 0,
         "min": 0,
-        "max": 0,
-        "n": 1
+        "max": 1000,
+        "n": 3
       },
       "duplicates": {
         "median": 975,
         "min": 975,
         "max": 975,
-        "n": 1
+        "n": 3
+      },
+      "missing_not_reported": {
+        "median": 0,
+        "min": 0,
+        "max": 0,
+        "n": 3
+      },
+      "records_reported_unconfirmed": {
+        "median": 1100,
+        "min": 1100,
+        "max": 1100,
+        "n": 3
       }
     },
     "restart": {
       "server_rss_steady_mib": {
         "median": 144.2,
-        "min": 144.2,
-        "max": 144.2,
-        "n": 1
+        "min": 140.7,
+        "max": 145.7,
+        "n": 3
       },
       "server_cpu_steady_pct": {
-        "median": 17.9,
+        "median": 19.1,
         "min": 17.9,
-        "max": 17.9,
-        "n": 1
+        "max": 24.6,
+        "n": 3
       },
       "restarts": {
         "graceful": {
           "seconds_to_ready": {
-            "median": 12.4,
+            "median": 12.5,
             "min": 12.4,
-            "max": 12.4,
-            "n": 1
+            "max": 12.71,
+            "n": 3
           },
           "seconds_until_producer_write": {
-            "median": 22.1,
-            "min": 22.1,
+            "median": 19.9,
+            "min": 13.9,
             "max": 22.1,
-            "n": 1
+            "n": 3
           },
           "seconds_until_consumer_record": {
-            "median": 22.1,
-            "min": 22.1,
+            "median": 19.9,
+            "min": 18.2,
             "max": 22.1,
-            "n": 1
+            "n": 3
           },
           "server_rss_peak_60s_mib": {
-            "median": 197.8,
+            "median": 237.5,
             "min": 197.8,
-            "max": 197.8,
-            "n": 1
+            "max": 259.3,
+            "n": 3
           },
           "server_container_peak_60s_mib": {
-            "median": 2047.8,
+            "median": 2048.0,
             "min": 2047.8,
-            "max": 2047.8,
-            "n": 1
+            "max": 2048.0,
+            "n": 3
           },
           "server_cpu_peak_60s_pct": {
             "median": 45.9,
-            "min": 45.9,
-            "max": 45.9,
-            "n": 1
+            "min": 35.8,
+            "max": 64.5,
+            "n": 3
           }
         },
         "crash": {
           "seconds_to_ready": {
-            "median": 7.7,
+            "median": 8.0,
             "min": 7.71,
-            "max": 7.71,
-            "n": 1
+            "max": 8.29,
+            "n": 3
           },
           "seconds_until_producer_write": {
             "median": 10.1,
-            "min": 10.1,
-            "max": 10.1,
-            "n": 1
+            "min": 10.0,
+            "max": 14.0,
+            "n": 3
           },
           "seconds_until_consumer_record": {
-            "median": 16.9,
-            "min": 16.9,
+            "median": 14.7,
+            "min": 11.2,
             "max": 16.9,
-            "n": 1
+            "n": 3
           },
           "server_rss_peak_60s_mib": {
-            "median": 170.9,
-            "min": 170.9,
+            "median": 169.3,
+            "min": 157.2,
             "max": 170.9,
-            "n": 1
+            "n": 3
           },
           "server_container_peak_60s_mib": {
-            "median": 1869.2,
+            "median": 1879.5,
             "min": 1869.2,
-            "max": 1869.2,
-            "n": 1
+            "max": 2047.8,
+            "n": 3
           },
           "server_cpu_peak_60s_pct": {
             "median": 77.3,
-            "min": 77.3,
-            "max": 77.3,
-            "n": 1
+            "min": 74.9,
+            "max": 115.3,
+            "n": 3
           }
         }
       },
       "records_confirmed": {
-        "median": 1615400,
+        "median": 1617700,
         "min": 1615400,
-        "max": 1615400,
-        "n": 1
+        "max": 1619900,
+        "n": 3
       },
       "missing_confirmed": {
         "median": 0,
         "min": 0,
         "max": 0,
-        "n": 1
+        "n": 3
       },
       "duplicates": {
         "median": 0,
         "min": 0,
         "max": 0,
-        "n": 1
+        "n": 3
       }
     }
   }

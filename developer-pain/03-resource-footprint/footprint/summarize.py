@@ -105,6 +105,8 @@ def one_rep(rep: Path) -> dict:
         "server_rss_peak_mib": peak(values(rows, "rss_mib", test="producer_pause", target="server")),
         "records_sent": prod.get("records_sent"), "failed_writes": prod.get("failed_writes"),
         "missing": cons.get("missing"), "duplicates": cons.get("duplicates"),
+        "missing_not_reported": cons.get("missing_not_reported"),
+        "records_reported_unconfirmed": prod.get("records_reported_unconfirmed"),
     }
 
     orch = load_json(rep / "restart-orchestrator.json").get("restarts", [])
@@ -191,11 +193,11 @@ def readme(s: dict) -> str:
     pp = a["producer_pause"]
     lines += [
         "", "## 2. Producer for 30 minutes at 8,000 records/s, server paused for 60 s halfway", "",
-        "| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Failed writes | Missing |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Reported to app as failed | Missing | Missing and not reported |",
+        "|---|---|---|---|---|---|---|---|---|",
         f"| {fmt(pp['producer_rss_before_median_mib'])} | {fmt(pp['producer_rss_during_pause_peak_mib'])} | {fmt(pp['producer_rss_after_peak_mib'])} | "
         f"{fmt(pp['producer_rss_last_minutes_median_mib'])} | {fmt(pp['producer_growth_before_mib_per_hour'])} | {fmt(pp['producer_growth_after_mib_per_hour'])} | "
-        f"{fmt(pp['failed_writes'])} | {fmt(pp['missing'])} |",
+        f"{fmt(pp['records_reported_unconfirmed'])} | {fmt(pp['missing'])} | {fmt(pp['missing_not_reported'])} |",
     ]
     rs = a["restart"]
     lines += [

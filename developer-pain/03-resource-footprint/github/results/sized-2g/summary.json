@@ -120,7 +120,9 @@
         "records_sent": 14400000,
         "failed_writes": 2,
         "missing": 0,
-        "duplicates": 975
+        "duplicates": 975,
+        "missing_not_reported": 0,
+        "records_reported_unconfirmed": 1100
       },
       "restart": {
         "server_rss_steady_mib": 124.8,
@@ -243,7 +245,9 @@
         "records_sent": 14400000,
         "failed_writes": 2,
         "missing": 0,
-        "duplicates": 975
+        "duplicates": 975,
+        "missing_not_reported": 0,
+        "records_reported_unconfirmed": 1100
       },
       "restart": {
         "server_rss_steady_mib": 117.0,
@@ -366,7 +370,9 @@
         "records_sent": 14400000,
         "failed_writes": 2,
         "missing": 0,
-        "duplicates": 975
+        "duplicates": 975,
+        "missing_not_reported": 0,
+        "records_reported_unconfirmed": 1100
       },
       "restart": {
         "server_rss_steady_mib": 118.9,
@@ -826,6 +832,18 @@
         "median": 975,
         "min": 975,
         "max": 975,
+        "n": 3
+      },
+      "missing_not_reported": {
+        "median": 0,
+        "min": 0,
+        "max": 0,
+        "n": 3
+      },
+      "records_reported_unconfirmed": {
+        "median": 1100,
+        "min": 1100,
+        "max": 1100,
         "n": 3
       }
     },

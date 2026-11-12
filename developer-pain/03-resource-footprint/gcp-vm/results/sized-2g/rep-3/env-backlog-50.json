@@ -1,0 +1,14 @@
+{
+  "server_image": "sha256:348e27e6dca7a1a1b500e89d028dccc61ce7834ea9d76f4e621b3da6ed00a941",
+  "server_image_digest": "laserdatainc/iggy-server@sha256:348e27e6dca7a1a1b500e89d028dccc61ce7834ea9d76f4e621b3da6ed00a941",
+  "server_version": "server 0.10.1-ld",
+  "plane_image_digest": "laserdatainc/laser-plane@sha256:397d8091ef7467db89205643a0fd61125f34525eabb8b7d674f085e699d8fd19",
+  "laser_stack_commit": "46dd0168675b54ce3d9025dace26574603220d10",
+  "laser_sdk": "0.9.1",
+  "python": "3.12.3",
+  "server_cpus": "2,3", "server_memory_limit": "2g", "client_cpus": "0-3",
+  "host_cpu": "Intel(R) Xeon(R) CPU @ 2.80GHz", "host_cores": 4, "host_memory_mib": 15985, "kernel": "7.0.0-1017-gcp",
+  "client_host": "separate VM, 4 vCPU", "scale": 1,
+  "tests": "backlog-50", "profile": "sized-2g",
+  "started": "2026-11-12T20:50:27Z"
+}

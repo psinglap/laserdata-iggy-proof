@@ -22,9 +22,9 @@ Each cell is the median across repetitions, with the lowest and highest in brack
 
 ## 2. Producer for 30 minutes at 8,000 records/s, server paused for 60 s halfway
 
-| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Failed writes | Missing |
-|---|---|---|---|---|---|---|---|
-| 59 (58–61) | 91 (91–92) | 91 (91–92) | 84 (70–86) | 4.2 (2–10) | 0 | 2 | 0 |
+| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Reported to app as failed | Missing | Missing and not reported |
+|---|---|---|---|---|---|---|---|---|
+| 59 (58–61) | 91 (91–92) | 91 (91–92) | 84 (70–86) | 4.2 (2–10) | 0 | 1,100 | 0 | 0 |
 
 ## 3. Server restart with 4 GiB on disk, producer and consumer connected
 
