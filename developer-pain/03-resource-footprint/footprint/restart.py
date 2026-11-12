@@ -61,7 +61,7 @@ async def produce() -> int:
     """Sends at RATE, and after any failure retries the same batch until it is confirmed."""
     c.register_client("producer")
     seq = PRELOAD
-    outages = []
+    outages, stalls = [], []
     laser = await c.connect()
     try:
         producer = laser.stream(STREAM).topic(TOPIC).producer(partitions=PARTITIONS, batch_length=c.BATCH)
@@ -70,9 +70,14 @@ async def produce() -> int:
         while not STOP.exists():
             batch = [c.payload(s) for s in range(seq, seq + c.BATCH)]
             failed_at = None
+            sent_at = time.time()
             while True:
                 try:
                     await producer.send_batch(batch)
+                    took = time.time() - sent_at
+                    if took > 0.25:  # the SDK retried inside its own timeout: count it as a stall
+                        stalls.append({"from": sent_at, "to": time.time()})
+                        c.event(TEST, "producer_stall", seconds=round(took, 2))
                     break
                 except Exception as error:
                     if failed_at is None:
@@ -92,7 +97,7 @@ async def produce() -> int:
         await laser.close()
         c.unregister_client("producer")
     TOTAL.write_text(str(seq))
-    c.write_result(f"{TEST}-producer", {"records_confirmed": seq, "outages": outages})
+    c.write_result(f"{TEST}-producer", {"records_confirmed": seq, "outages": outages, "stalls": stalls})
     return 0
 
 
@@ -125,7 +130,7 @@ async def consume() -> int:
                         await asyncio.sleep(0.5)
             if message is not None:
                 now = time.time()
-                if now - last_record > 2:
+                if now - last_record > 0.5:
                     gaps.append({"from": last_record, "to": now})
                     c.event(TEST, "consumer_resumed", seconds=round(now - last_record, 2))
                 last_record = now

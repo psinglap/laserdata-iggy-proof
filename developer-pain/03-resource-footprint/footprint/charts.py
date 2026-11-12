@@ -7,12 +7,14 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import sys
 from pathlib import Path
 
 import matplotlib
 
 matplotlib.use("Agg")
+logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 import matplotlib.pyplot as plt  # noqa: E402
 
 INK, MUTED, LINE = "#111a2b", "#5a6578", "#dde2ea"
@@ -43,6 +45,11 @@ def footer(fig, env: dict) -> None:
              fontsize=8.5, color=MUTED, transform=fig.axes[0].transAxes)
 
 
+def cell(c):
+    """A combined cell, or zeros when a test produced no number."""
+    return c if isinstance(c, dict) and "median" in c else {"median": 0, "min": 0, "max": 0}
+
+
 def samples(rep: Path, **match):
     with open(rep / "samples.csv") as f:
         return [r for r in csv.DictReader(f) if all(r[k] == v for k, v in match.items())]
@@ -55,7 +62,7 @@ def consumer_chart(s: dict, out: Path) -> None:
     x = range(len(parts))
     for offset, key, color, label in ((-0.19, "consumer_rss_peak_mib", LIME_FILL, "Laser SDK consumer, peak RSS"),
                                       (0.19, "server_rss_peak_mib", NAVY, "Laser Streams server, peak RSS")):
-        cells = [b[p][key] for p in parts]
+        cells = [cell(b[p][key]) for p in parts]
         meds = [c["median"] for c in cells]
         err = [[c["median"] - c["min"] for c in cells], [c["max"] - c["median"] for c in cells]]
         bars = ax.bar([i + offset for i in x], meds, width=0.36, color=color, label=label, yerr=err,
@@ -66,8 +73,8 @@ def consumer_chart(s: dict, out: Path) -> None:
     ax.set_xticks(list(x), [f"{p} partitions" for p in parts])
     ax.set_ylabel("MiB")
     ax.legend(frameon=False, loc="upper left")
-    ax.set_ylim(0, max(max(c["max"] for c in (b[p]["consumer_rss_peak_mib"] for p in parts)),
-                       max(c["max"] for c in (b[p]["server_rss_peak_mib"] for p in parts))) * 1.3)
+    top = max(cell(b[p][k])["max"] for p in parts for k in ("consumer_rss_peak_mib", "server_rss_peak_mib"))
+    ax.set_ylim(0, (top or 1) * 1.3)
     heading(fig, "Consumer memory while catching up on 7 million records",
             "One Laser SDK consumer reads the whole backlog from offset 0, with SDK default settings")
     footer(fig, s["env"])
@@ -90,8 +97,8 @@ def producer_chart(root: Path, s: dict, out: Path) -> None:
             paused = [x for x, r in zip(xs, rows) if r["phase"] == "server-paused"]
             if paused:
                 ax.axvspan(min(paused), max(paused), color=ROSE, alpha=0.12, lw=0)
-                ax.text(min(paused), ax.get_ylim()[1] if False else max(ys) * 1.05, " server paused 60 s",
-                        color=ROSE, fontsize=10, va="bottom")
+                ax.text((min(paused) + max(paused)) / 2, 4, "server paused\n60 s", color=ROSE,
+                        fontsize=10, ha="center", va="bottom")
     ax.set_xlabel("minutes")
     ax.set_ylabel("MiB")
     ax.set_ylim(bottom=0)
@@ -118,14 +125,15 @@ def restart_chart(root: Path, s: dict, out: Path) -> None:
     ax2.spines["right"].set_visible(True)
     ax2.grid(False)
     orch = json.loads((rep / "restart-orchestrator.json").read_text()).get("restarts", [])
-    for r in orch:
+    ax.set_ylim(0, max(float(r["rss_mib"] or 0) for r in rows) * 1.45)
+    for i, r in enumerate(orch):
         x = r["began"] - t0
         ax.axvline(x, color=ROSE, lw=1.2, ls="--")
-        ax.text(x, ax.get_ylim()[1], f" {r['kind']} restart\n ready in {r['seconds_to_ready']} s", color=ROSE, fontsize=9.5, va="top")
+        ax.text(x, ax.get_ylim()[1] * (0.97 - 0.14 * i), f" {r['kind']} restart, answering again in {r['seconds_to_ready']} s",
+                color=ROSE, fontsize=9.5, va="top")
     ax.set_xlabel("seconds")
     ax.set_ylabel("MiB")
     ax2.set_ylabel("% of one core")
-    ax.set_ylim(bottom=0)
     h1, l1 = ax.get_legend_handles_labels()
     h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1 + h2, l1 + l2, frameon=False, loc="lower right")

@@ -116,8 +116,11 @@ def one_rep(rep: Path) -> dict:
     for r in orch:
         began = r["began"]
         window = [s for s in srv if began <= s["t"] <= began + 60]
-        outage = next((o for o in rprod.get("outages", []) if o["to"] >= began and o["from"] <= began + 120), None)
-        gap = next((g for g in rcons.get("gaps", []) if g["to"] >= began and g["from"] <= began + 120), None)
+        blocked = rprod.get("outages", []) + rprod.get("stalls", [])
+        outage = max((o for o in blocked if o["to"] >= began and o["from"] <= began + 120),
+                     key=lambda o: o["to"], default=None)
+        gap = max((g for g in rcons.get("gaps", []) if g["to"] >= began and g["from"] <= began + 120),
+                  key=lambda g: g["to"], default=None)
         restarts[r["kind"]] = {
             "seconds_to_ready": r["seconds_to_ready"],
             "seconds_until_producer_write": round(outage["to"] - began, 1) if outage else 0.0,
