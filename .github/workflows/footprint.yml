@@ -1,0 +1,88 @@
+# LaserData footprint tests (developer-pain/03-resource-footprint).
+# Runs the three tests three times, each on its own fresh GitHub-hosted Linux machine,
+# then builds the summary and charts and commits them to the folder's results/.
+name: LaserData footprint
+on:
+  workflow_dispatch:
+    inputs:
+      scale:
+        description: "1 = full run (about 1 hour). 0.1 = quick trial, nothing is published."
+        default: "1"
+      reps:
+        description: "Repetitions, as a JSON list"
+        default: "[1,2,3]"
+  schedule:
+    - cron: "0 5 * * 1"  # every Monday, so new LaserData releases are re-measured
+
+permissions:
+  contents: write
+
+concurrency: footprint
+
+env:
+  DIR: developer-pain/03-resource-footprint
+
+jobs:
+  measure:
+    strategy:
+      fail-fast: false
+      matrix:
+        rep: ${{ fromJSON(inputs.reps || '[1,2,3]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space for test data
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          docker system prune -af >/dev/null
+          df -h /
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r $DIR/requirements.txt
+      - name: Run the tests
+        env:
+          FOOTPRINT_SCALE: ${{ inputs.scale || '1' }}
+          FOOTPRINT_OUT: ${{ github.workspace }}/out/rep-${{ matrix.rep }}
+        run: |
+          nproc; free -m
+          $DIR/run.sh
+      - name: Keep the run's evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rep-${{ matrix.rep }}
+          path: out/rep-${{ matrix.rep }}
+
+  publish:
+    needs: measure
+    if: always() && (github.event_name == 'schedule' || inputs.scale == '1')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install matplotlib==3.9.2
+      - uses: actions/download-artifact@v4
+        with:
+          path: incoming
+      - name: Build summary and charts
+        run: |
+          rm -rf $DIR/results && mkdir -p $DIR/results
+          for d in incoming/rep-*; do
+            r=$DIR/results/$(basename $d); mkdir -p $r
+            cp $d/*.json $d/*.jsonl $d/samples.csv $r/ 2>/dev/null || true
+            tail -n 300 $d/server.log > $r/server-tail.log 2>/dev/null || true
+          done
+          python $DIR/footprint/summarize.py $DIR/results \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          python $DIR/footprint/charts.py $DIR/results
+      - name: Commit results
+        run: |
+          git config user.name "LaserData footprint bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $DIR/results
+          git commit -m "Footprint results from run ${{ github.run_id }}" || exit 0
+          git push

@@ -1,0 +1,13 @@
+# Applied on top of Laser Stack's own compose.yaml. Nothing else is changed: the server
+# and the managed backend run with LaserData's shipped settings.
+#
+# The server gets two dedicated cores and a 2 GiB memory limit, the size of a small node.
+# The Laser SDK test clients and the managed backend run on the other cores, so they never
+# compete with the server for CPU.
+services:
+  iggy:
+    cpuset: "${SERVER_CPUS:-2,3}"
+    mem_limit: ${SERVER_MEMORY:-2g}
+    memswap_limit: ${SERVER_MEMORY:-2g}
+  plane:
+    cpuset: "${CLIENT_CPUS:-0,1}"
