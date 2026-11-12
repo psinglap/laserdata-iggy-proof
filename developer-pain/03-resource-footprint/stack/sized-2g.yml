@@ -8,4 +8,5 @@ services:
   iggy:
     environment:
       IGGY_MEMORY_POOL_SIZE: "512 MiB"        # the documented minimum
-      IGGY_PARTITION_WAL_BYTES_MAX: "16 MiB"  # 50 partitions x 16 MiB = 800 MiB worst case
+      # The server's allowed minimum (a 4 KiB multiple of at least 134,225,920 bytes); default 268 MB.
+      IGGY_PARTITION_WAL_BYTES_MAX: "131080 KiB"
