@@ -8,6 +8,11 @@ stops answering, and a server restart. Read `README.md` first.
 
 - **On Google Cloud:** `PROJECT=<their project> gcp-vm/run-gcp.sh` (needs `gcloud` signed in);
   `FOOTPRINT_SCALE=0.1` for a quick trial. It deletes every VM it creates.
+- **Against the user's own LaserData Cloud deployment:** export `LASER_CONNECTION_STRING`, set
+  `FOOTPRINT_SCALE=0.01` on a Free Tier deployment (capped at 200 KB/s), run
+  `python footprint/consumer_backlog.py preload --partitions 50`, then wrap the consume step in
+  `/usr/bin/time -v` (Linux) or `/usr/bin/time -l` (macOS) to get the client's peak memory.
+  Server memory comes from the LaserData Console or metrics API.
 
 ## Rules
 

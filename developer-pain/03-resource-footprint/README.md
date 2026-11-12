@@ -49,6 +49,16 @@ for larger nodes.
 creates a server VM and a client VM per test, runs everything at once, brings the results back and
 deletes the VMs. See [`gcp-vm/`](gcp-vm/README.md).
 
+**Against your own LaserData Cloud deployment:** set `LASER_CONNECTION_STRING` and run the backlog
+test directly, wrapping the consume step to get the client's peak memory. A Free Tier deployment is
+capped at 200 KB/s, so use `FOOTPRINT_SCALE=0.01` there; full size needs a paid tier.
+
+```bash
+export LASER_CONNECTION_STRING='user:password@your-deployment:8090' FOOTPRINT_SCALE=0.01
+python footprint/consumer_backlog.py preload --partitions 50
+/usr/bin/time -v python footprint/consumer_backlog.py consume --partitions 50   # macOS: -l
+```
+
 **With a coding agent:** see `AGENTS.md`.
 
 ## Good to know
