@@ -39,9 +39,12 @@ def heading(fig, title: str, subtitle: str) -> None:
     fig.text(0.0, 1.0, subtitle, fontsize=10.5, color=MUTED, transform=fig.axes[0].transAxes)
 
 
-def footer(fig, env: dict) -> None:
+WHERE = "GitHub-hosted runner"
+
+
+def footer(fig, env: dict, note: str = "") -> None:
     fig.text(0.0, -0.2, f"LaserData · Laser Streams server on 2 cores, {env.get('server_memory_limit')} limit · "
-             f"Laser SDK {env.get('laser_sdk')} (Python) · GitHub-hosted runner · median of repetitions, bars show lowest–highest",
+             f"Laser SDK {env.get('laser_sdk')} (Python) · {WHERE}{note}",
              fontsize=8.5, color=MUTED, transform=fig.axes[0].transAxes)
 
 
@@ -77,7 +80,7 @@ def consumer_chart(s: dict, out: Path) -> None:
     ax.set_ylim(0, (top or 1) * 1.3)
     heading(fig, "Consumer memory while catching up on 7 million records",
             "One Laser SDK consumer reads the whole backlog from offset 0, with SDK default settings")
-    footer(fig, s["env"])
+    footer(fig, s["env"], " · median of repetitions, bars show lowest–highest")
     save(fig, out, "consumer-backlog")
 
 
@@ -102,10 +105,16 @@ def producer_chart(root: Path, s: dict, out: Path) -> None:
     ax.set_xlabel("minutes")
     ax.set_ylabel("MiB")
     ax.set_ylim(bottom=0)
-    ax.legend(frameon=False, loc="lower right")
-    heading(fig, "Producer memory over 30 minutes at 20,000 records/s",
+    ax.legend(frameon=False, loc="upper left")
+    rate = 8000
+    for rep in reps:
+        f = rep / "producer_pause-producer.json"
+        if f.exists():
+            rate = json.loads(f.read_text()).get("rate_target", rate)
+            break
+    heading(fig, f"Producer memory over 30 minutes at {rate:,} records/s",
             "Laser SDK background (buffered) mode with its default buffer budget; each line is one repetition")
-    footer(fig, s["env"])
+    footer(fig, s["env"], " · each line is one repetition")
     save(fig, out, "producer-pause")
 
 
@@ -139,12 +148,15 @@ def restart_chart(root: Path, s: dict, out: Path) -> None:
     ax.legend(h1 + h2, l1 + l2, frameon=False, loc="lower right")
     heading(fig, "Server memory and CPU through a graceful restart and a crash",
             "4 GiB on disk, a Laser SDK producer and consumer connected throughout (repetition 1)")
-    footer(fig, s["env"])
+    footer(fig, s["env"], " · repetition 1")
     save(fig, out, "restart")
 
 
 def main() -> None:
+    global WHERE
     root = Path(sys.argv[1] if len(sys.argv) > 1 else "results")
+    if len(sys.argv) > 2:
+        WHERE = sys.argv[2]
     s = json.loads((root / "summary.json").read_text())
     out = root / "charts"
     consumer_chart(s, out)
