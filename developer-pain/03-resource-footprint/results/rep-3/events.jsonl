@@ -1,0 +1,34 @@
+{"t": 1794506690.787761, "test": "consumer_backlog", "event": "phase", "phase": "preload-10p"}
+{"t": 1794506742.6388304, "test": "consumer_backlog", "event": "preloaded", "partitions": 10, "records": 7000000, "seconds": 51.8}
+{"t": 1794506752.7225149, "test": "consumer_backlog", "event": "phase", "phase": "consume-10p"}
+{"t": 1794507509.4157157, "test": "consumer_backlog", "event": "consumed", "partitions": 10, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 756.6, "records_per_second": 9251, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794506688.7077045, "test": "consumer_backlog", "event": "phase", "phase": "preload-2p"}
+{"t": 1794506743.0819921, "test": "consumer_backlog", "event": "preloaded", "partitions": 2, "records": 7000000, "seconds": 54.4}
+{"t": 1794506753.1604562, "test": "consumer_backlog", "event": "phase", "phase": "consume-2p"}
+{"t": 1794507491.4996295, "test": "consumer_backlog", "event": "consumed", "partitions": 2, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 738.3, "records_per_second": 9481, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794506688.6065726, "test": "consumer_backlog", "event": "phase", "phase": "preload-50p"}
+{"t": 1794506733.109942, "test": "consumer_backlog", "event": "preloaded", "partitions": 50, "records": 7000000, "seconds": 44.5}
+{"t": 1794506743.4857595, "test": "consumer_backlog", "event": "phase", "phase": "consume-50p"}
+{"t": 1794507709.4685466, "test": "consumer_backlog", "event": "consumed", "partitions": 50, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 965.9, "records_per_second": 7247, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794506715.0532465, "test": "producer_pause", "event": "phase", "phase": "steady-before"}
+{"t": 1794507615.0541055, "test": "producer_pause", "event": "phase", "phase": "server-paused"}
+{"t": 1794507615.076763, "test": "producer_pause", "event": "server_paused"}
+{"t": 1794507635.1292412, "test": "producer_pause", "event": "consumer_recreated", "silent_seconds": 20.0}
+{"t": 1794507675.1009464, "test": "producer_pause", "event": "phase", "phase": "after-resume"}
+{"t": 1794507675.1010215, "test": "producer_pause", "event": "server_resumed"}
+{"t": 1794507712.065357, "test": "producer_pause", "event": "consumer_error", "error": "InvalidError: invalid: the live consumer stream ended"}
+{"t": 1794507712.2659326, "test": "producer_pause", "event": "consumer_recreated", "silent_seconds": 97.2}
+{"t": 1794506808.4683588, "test": "restart", "event": "phase", "phase": "preload"}
+{"t": 1794506834.5276933, "test": "restart", "event": "preloaded", "records": 4000000}
+{"t": 1794506837.620214, "test": "restart", "event": "phase", "phase": "steady"}
+{"t": 1794506897.6209152, "test": "restart", "event": "phase", "phase": "graceful-restart"}
+{"t": 1794506907.1079576, "test": "restart", "event": "restart", "kind": "graceful", "began": 1794506897.6209545, "seconds_to_ready": 9.49}
+{"t": 1794506907.1083493, "test": "restart", "event": "phase", "phase": "after-graceful"}
+{"t": 1794506908.3763254, "test": "restart", "event": "producer_stall", "seconds": 10.69}
+{"t": 1794506932.4887545, "test": "restart", "event": "producer_stall", "seconds": 0.45}
+{"t": 1794506962.6063945, "test": "restart", "event": "producer_stall", "seconds": 0.26}
+{"t": 1794506992.7508595, "test": "restart", "event": "producer_stall", "seconds": 0.27}
+{"t": 1794507027.1090572, "test": "restart", "event": "phase", "phase": "crash-restart"}
+{"t": 1794507035.5255754, "test": "restart", "event": "restart", "kind": "crash", "began": 1794507027.1091053, "seconds_to_ready": 8.42}
+{"t": 1794507035.5259397, "test": "restart", "event": "phase", "phase": "after-crash"}
+{"t": 1794507038.1873205, "test": "restart", "event": "producer_stall", "seconds": 11.05}

@@ -1,0 +1,10 @@
+{
+  "partitions": 2,
+  "records": 7000000,
+  "received_unique": 7000000,
+  "duplicates": 0,
+  "missing": 0,
+  "seconds": 420.7,
+  "records_per_second": 16638,
+  "consumer_settings": "Laser SDK defaults, polling='first'"
+}

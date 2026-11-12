@@ -1,0 +1,22 @@
+{
+  "backlog-10": {
+    "oom_killed": false,
+    "restart_count": 0
+  },
+  "backlog-2": {
+    "oom_killed": false,
+    "restart_count": 0
+  },
+  "backlog-50": {
+    "oom_killed": false,
+    "restart_count": 2
+  },
+  "producer": {
+    "oom_killed": false,
+    "restart_count": 0
+  },
+  "restart": {
+    "oom_killed": false,
+    "restart_count": 0
+  }
+}

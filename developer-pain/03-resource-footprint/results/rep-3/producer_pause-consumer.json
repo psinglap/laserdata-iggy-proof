@@ -1,0 +1,23 @@
+{
+  "records_expected": 36000000,
+  "received_unique": 36000000,
+  "duplicates": 975,
+  "missing": 0,
+  "missing_not_reported": 0,
+  "missing_ranges": [],
+  "consumer_errors": {
+    "rebuild TransportError: Operation 201 has an unknown outcome": 1,
+    "InvalidError: invalid: the live consumer stream ended": 1
+  },
+  "consumer_recreated": 2,
+  "gaps": [
+    {
+      "from": 1794506712.6032522,
+      "to": 1794506715.0589364
+    },
+    {
+      "from": 1794507615.1083508,
+      "to": 1794507712.5511794
+    }
+  ]
+}

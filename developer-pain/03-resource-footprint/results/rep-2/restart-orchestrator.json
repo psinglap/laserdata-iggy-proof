@@ -1,0 +1,14 @@
+{
+  "restarts": [
+    {
+      "kind": "graceful",
+      "began": 1794506897.3857017,
+      "seconds_to_ready": 9.3
+    },
+    {
+      "kind": "crash",
+      "began": 1794507026.6821027,
+      "seconds_to_ready": 8.22
+    }
+  ]
+}
