@@ -13,7 +13,7 @@ set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 export FOOTPRINT_OUT=${FOOTPRINT_OUT:-$HERE/results/local}
 export FOOTPRINT_SCALE=${FOOTPRINT_SCALE:-1}
-# Which tests to run; the GitHub workflow runs each on its own machine in parallel.
+# Which tests to run; the Google Cloud script runs each on its own VM pair in parallel.
 TESTS=${TESTS:-idle backlog-2 backlog-10 backlog-50 producer restart}
 export SERVER_CPUS=${SERVER_CPUS:-2,3} CLIENT_CPUS=${CLIENT_CPUS:-0,1} SERVER_MEMORY=${SERVER_MEMORY:-2g}
 STACK=${LASER_STACK_DIR:-$HERE/.laser-stack}
