@@ -100,7 +100,7 @@ def producer_chart(root: Path, s: dict, out: Path) -> None:
             paused = [x for x, r in zip(xs, rows) if r["phase"] == "server-paused"]
             if paused:
                 ax.axvspan(min(paused), max(paused), color=ROSE, alpha=0.12, lw=0)
-                ax.text((min(paused) + max(paused)) / 2, 4, "server paused\n60 s", color=ROSE,
+                ax.text((min(paused) + max(paused)) / 2, 4, "server unreachable\n60 s", color=ROSE,
                         fontsize=10, ha="center", va="bottom")
     ax.set_xlabel("minutes")
     ax.set_ylabel("MiB")

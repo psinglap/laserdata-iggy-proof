@@ -20,9 +20,9 @@ Each cell is the median across repetitions, with the lowest and highest in brack
 | 10 | 71 (67–71) | 71 (67–71) | 228 (218–229) | 2,048 | 904 (888–967) | 7,739 (7,240–7,887) | 0 |
 | 50 | 68 (67–68) | 64 (63–66) | 272 (266–274) | 2,048 (2,048–2,048) | 902 (865–927) | 7,761 (7,550–8,091) | 0 |
 
-## 2. Producer for 30 minutes at 8,000 records/s, server paused for 60 s halfway
+## 2. Producer for 30 minutes at 8,000 records/s, server unreachable for 60 s halfway
 
-| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Reported to app as failed | Missing | Missing and not reported |
+| Producer RSS while sending | Peak during outage | Peak after outage | Last 2 minutes | Growth while sending (MiB/h) | Growth after outage (MiB/h) | Reported to app as failed | Missing | Missing and not reported |
 |---|---|---|---|---|---|---|---|---|
 | 52 (52–52) | 83 (82–83) | 84 (83–85) | 72 (62–75) | 3.5 (2–15) | 0 | 1,100 | 0 (0–1,000) | 0 |
 
@@ -41,7 +41,7 @@ Confirmed records missing after both restarts: 0.
 
 ![Consumer memory while catching up on 7 million records](charts/consumer-backlog.png)
 
-![Producer memory over 30 minutes, server frozen for 60 s](charts/producer-pause.png)
+![Producer memory over 30 minutes, 60-second outage halfway](charts/producer-pause.png)
 
 ![Server memory and CPU through a graceful restart and a crash](charts/restart.png)
 

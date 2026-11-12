@@ -192,8 +192,8 @@ def readme(s: dict) -> str:
                      f"{fmt(b['server_container_peak_mib'])} | {fmt(b['drain_seconds'])} | {fmt(b['records_per_second'])} | {fmt(b['missing'])} |")
     pp = a["producer_pause"]
     lines += [
-        "", "## 2. Producer for 30 minutes at 8,000 records/s, server paused for 60 s halfway", "",
-        "| Producer RSS before | Peak while paused | Peak after resume | Last 2 minutes | Growth before pause (MiB/h) | Growth after (MiB/h) | Reported to app as failed | Missing | Missing and not reported |",
+        "", "## 2. Producer for 30 minutes at 8,000 records/s, server unreachable for 60 s halfway", "",
+        "| Producer RSS while sending | Peak during outage | Peak after outage | Last 2 minutes | Growth while sending (MiB/h) | Growth after outage (MiB/h) | Reported to app as failed | Missing | Missing and not reported |",
         "|---|---|---|---|---|---|---|---|---|",
         f"| {fmt(pp['producer_rss_before_median_mib'])} | {fmt(pp['producer_rss_during_pause_peak_mib'])} | {fmt(pp['producer_rss_after_peak_mib'])} | "
         f"{fmt(pp['producer_rss_last_minutes_median_mib'])} | {fmt(pp['producer_growth_before_mib_per_hour'])} | {fmt(pp['producer_growth_after_mib_per_hour'])} | "
@@ -212,7 +212,7 @@ def readme(s: dict) -> str:
     lines += ["", f"Confirmed records missing after both restarts: {fmt(rs['missing_confirmed'])}.", "",
               "## Charts", "",
               "![Consumer memory while catching up on 7 million records](charts/consumer-backlog.png)", "",
-              "![Producer memory over 30 minutes, server frozen for 60 s](charts/producer-pause.png)", "",
+              "![Producer memory over 30 minutes, 60-second outage halfway](charts/producer-pause.png)", "",
               "![Server memory and CPU through a graceful restart and a crash](charts/restart.png)", "",
               "Raw evidence for every repetition is in `rep-*/`: `samples.csv` (one row per second per process), "
               "`events.jsonl`, one JSON per test and `env.json`. SVG versions of the charts are in `charts/`.", ""]
