@@ -21,7 +21,7 @@ g() { gcloud --project "$PROJECT" --quiet "$@"; }
 sshv() { local vm=$1; shift; g compute ssh "$vm" --zone "$ZONE" --command "$*"; }
 
 VMS=()
-cleanup() { [ ${#VMS[@]} -eq 0 ] || g compute instances delete "${VMS[@]}" --zone "$ZONE" >/dev/null 2>&1 || true; echo "deleted ${VMS[*]}"; }
+cleanup() { [ ${#VMS[@]} -eq 0 ] || g compute instances delete "${VMS[@]}" --zone "$ZONE" >/dev/null 2>&1 || true; echo "deleted ${VMS[*]:-nothing left}"; }
 trap cleanup EXIT
 
 echo "== creating VMs in $ZONE ($MACHINE)"

@@ -27,7 +27,7 @@ if [ -n "${REMOTE_SERVER:-}" ]; then
   export LASER_CONNECTION_STRING=${LASER_CONNECTION_STRING:-iggy:laser@$REMOTE_SERVER:8090}
   export FOOTPRINT_PING=${FOOTPRINT_PING:-http://$REMOTE_SERVER:3000/ping}
   export FOOTPRINT_DOCKER="ssh -o StrictHostKeyChecking=no -o BatchMode=yes $REMOTE_SERVER sudo docker"
-  D() { $FOOTPRINT_DOCKER "$@"; }
+  D() { $FOOTPRINT_DOCKER $(printf '%q ' "$@"); }  # quote each argument for the remote shell
   until curl -fs "$FOOTPRINT_PING" >/dev/null; do sleep 1; done
   SERVER=$(D ps -qf name=laser-stack-iggy-1); PLANE=$(D ps -qf name=laser-stack-plane-1)
   PROFILE=${PROFILE:-shipped}
