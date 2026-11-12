@@ -1,0 +1,41 @@
+{"t": 1794509590.5669043, "test": "consumer_backlog", "event": "phase", "phase": "preload-10p"}
+{"t": 1794509641.328252, "test": "consumer_backlog", "event": "preloaded", "partitions": 10, "records": 7000000, "seconds": 50.7}
+{"t": 1794509641.352109192, "test": "consumer_backlog", "event": "phase", "phase": "settle-10p"}
+{"t": 1794509651.4158688, "test": "consumer_backlog", "event": "phase", "phase": "consume-10p"}
+{"t": 1794510391.5863519, "test": "consumer_backlog", "event": "consumed", "partitions": 10, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 740.1, "records_per_second": 9458, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794510391.715512762, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794509595.6583276, "test": "consumer_backlog", "event": "phase", "phase": "preload-2p"}
+{"t": 1794509653.6728785, "test": "consumer_backlog", "event": "preloaded", "partitions": 2, "records": 7000000, "seconds": 58.0}
+{"t": 1794509653.701909314, "test": "consumer_backlog", "event": "phase", "phase": "settle-2p"}
+{"t": 1794509663.7751122, "test": "consumer_backlog", "event": "phase", "phase": "consume-2p"}
+{"t": 1794510283.931373, "test": "consumer_backlog", "event": "consumed", "partitions": 2, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 620.1, "records_per_second": 11289, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794510284.194692165, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794509604.4491544, "test": "consumer_backlog", "event": "phase", "phase": "preload-50p"}
+{"t": 1794509650.2280552, "test": "consumer_backlog", "event": "preloaded", "partitions": 50, "records": 7000000, "seconds": 45.8}
+{"t": 1794509650.246470315, "test": "consumer_backlog", "event": "phase", "phase": "settle-50p"}
+{"t": 1794509660.302326, "test": "consumer_backlog", "event": "phase", "phase": "consume-50p"}
+{"t": 1794510171.1002893, "test": "consumer_backlog", "event": "consumed", "partitions": 50, "records": 7000000, "received_unique": 7000000, "duplicates": 0, "missing": 0, "seconds": 510.7, "records_per_second": 13705, "consumer_settings": "Laser SDK defaults, polling='first'"}
+{"t": 1794510171.251127255, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794509592.1211946, "test": "producer_pause", "event": "phase", "phase": "steady-before"}
+{"t": 1794510492.1223984, "test": "producer_pause", "event": "phase", "phase": "server-paused"}
+{"t": 1794510492.1581721, "test": "producer_pause", "event": "server_paused"}
+{"t": 1794510512.2196152, "test": "producer_pause", "event": "consumer_recreated", "silent_seconds": 20.0}
+{"t": 1794510552.1851585, "test": "producer_pause", "event": "phase", "phase": "after-resume"}
+{"t": 1794510552.185268, "test": "producer_pause", "event": "server_resumed"}
+{"t": 1794510591.23115, "test": "producer_pause", "event": "consumer_error", "error": "InvalidError: invalid: the live consumer stream ended"}
+{"t": 1794510591.4317255, "test": "producer_pause", "event": "consumer_recreated", "silent_seconds": 99.2}
+{"t": 1794512148.025587530, "test": "done", "event": "phase", "phase": "done"}
+{"t": 1794509590.041105436, "test": "idle", "event": "phase", "phase": "idle"}
+{"t": 1794509710.4933066, "test": "restart", "event": "phase", "phase": "preload"}
+{"t": 1794509739.1685698, "test": "restart", "event": "preloaded", "records": 4000000}
+{"t": 1794509742.3396714, "test": "restart", "event": "phase", "phase": "steady"}
+{"t": 1794509802.3407671, "test": "restart", "event": "phase", "phase": "graceful-restart"}
+{"t": 1794509811.9936292, "test": "restart", "event": "restart", "kind": "graceful", "began": 1794509802.340918, "seconds_to_ready": 9.65}
+{"t": 1794509811.9940484, "test": "restart", "event": "phase", "phase": "after-graceful"}
+{"t": 1794509813.7226658, "test": "restart", "event": "producer_stall", "seconds": 11.33}
+{"t": 1794509931.9947524, "test": "restart", "event": "phase", "phase": "crash-restart"}
+{"t": 1794509940.4746168, "test": "restart", "event": "restart", "kind": "crash", "began": 1794509931.994805, "seconds_to_ready": 8.48}
+{"t": 1794509940.4749956, "test": "restart", "event": "phase", "phase": "after-crash"}
+{"t": 1794509945.966078, "test": "restart", "event": "producer_stall", "seconds": 13.93}
+{"t": 1794509947.9216335, "test": "restart", "event": "consumer_error", "error": "FilterError: filter: catalog_unavailable: control head confirmation timed out, retry"}
+{"t": 1794510062.854867349, "test": "done", "event": "phase", "phase": "done"}

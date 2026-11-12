@@ -1,0 +1,19 @@
+{
+  "records_confirmed": 1611000,
+  "received_unique": 1611000,
+  "missing_confirmed": 0,
+  "duplicates": 0,
+  "missing_ranges": [],
+  "consumer_errors": {},
+  "consumer_recreated": 0,
+  "gaps": [
+    {
+      "from": 1794509803.0551677,
+      "to": 1794509817.6466699
+    },
+    {
+      "from": 1794509932.4624493,
+      "to": 1794509946.4874966
+    }
+  ]
+}

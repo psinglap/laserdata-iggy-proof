@@ -1,0 +1,21 @@
+{
+  "records_confirmed": 1605600,
+  "received_unique": 1605600,
+  "missing_confirmed": 0,
+  "duplicates": 0,
+  "missing_ranges": [],
+  "consumer_errors": {
+    "FilterError: filter: catalog_unavailable: control head confirmation timed out, retry": 1
+  },
+  "consumer_recreated": 0,
+  "gaps": [
+    {
+      "from": 1794509802.382163,
+      "to": 1794509818.7695763
+    },
+    {
+      "from": 1794509932.0376928,
+      "to": 1794509948.1280766
+    }
+  ]
+}

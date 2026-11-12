@@ -1,0 +1,14 @@
+{
+  "server_image": "sha256:72b30d25c738785f4f6a7dae278f670a4d7e87843c836db6b495a701931ee9a1",
+  "server_image_digest": "laserdatainc/iggy-server@sha256:348e27e6dca7a1a1b500e89d028dccc61ce7834ea9d76f4e621b3da6ed00a941",
+  "server_version": "server 0.10.1-ld",
+  "plane_image_digest": "laserdatainc/laser-plane@sha256:397d8091ef7467db89205643a0fd61125f34525eabb8b7d674f085e699d8fd19",
+  "laser_stack_commit": "46dd0168675b54ce3d9025dace26574603220d10",
+  "laser_sdk": "0.9.1",
+  "python": "3.12.16",
+  "server_cpus": "2,3", "server_memory_limit": "2g", "client_cpus": "0,1",
+  "host_cpu": "AMD EPYC 7763 64-Core Processor", "host_cores": 4, "host_memory_mib": 15983, "kernel": "7.0.0-1017-azure",
+  "client_host": "", "scale": 1,
+  "tests": "producer", "profile": "sized-2g",
+  "started": "2026-11-12T18:53:12Z"
+}
