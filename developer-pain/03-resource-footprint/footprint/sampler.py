@@ -122,13 +122,16 @@ class Client:
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
-    p.add_argument("--server", required=True)
-    p.add_argument("--plane", required=True)
+    p.add_argument("--server", default="")
+    p.add_argument("--plane", default="")
     args = p.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    targets = {"server": Container(args.server, "iggy-server"),
-               "plane": Container(args.plane, "laser-plane")}
+    targets = {}  # empty names: the server runs on another machine with its own sampler
+    if args.server:
+        targets["server"] = Container(args.server, "iggy-server")
+    if args.plane:
+        targets["plane"] = Container(args.plane, "laser-plane")
     clients: dict[str, Client] = {}
     fields = ["t", "test", "phase", "target", "rss_mib", "anon_mib", "file_mib", "cgroup_mib", "cpu_pct"]
     with open(out / "samples.csv", "w", newline="") as f:

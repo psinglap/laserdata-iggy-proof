@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import shlex
 import struct
 import time
 from pathlib import Path
@@ -19,6 +20,8 @@ import laser_sdk as ls
 CONNECTION = os.environ.get("LASER_CONNECTION_STRING", "iggy:laser@127.0.0.1:8090")
 OUT = Path(os.environ.get("FOOTPRINT_OUT", "results/local"))
 SCALE = float(os.environ.get("FOOTPRINT_SCALE", "1"))  # 0.1 for a quick trial run
+# How the tests reach the server's Docker: locally, or over SSH when the server is another VM.
+DOCKER = shlex.split(os.environ.get("FOOTPRINT_DOCKER", "docker"))
 MESSAGE_BYTES = 1024  # 1 KiB records, the size LaserData's own benchmark suite uses
 BATCH = 100  # records per send, also from LaserData's benchmark suite
 SEQ = struct.Struct("<Q")

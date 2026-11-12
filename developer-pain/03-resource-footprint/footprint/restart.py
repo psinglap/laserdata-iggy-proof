@@ -150,10 +150,10 @@ def orchestrate() -> int:
         c.set_phase(TEST, f"{kind}-restart")
         began = time.time()
         if kind == "graceful":
-            subprocess.run(["docker", "restart", "-t", "30", SERVER], check=True)
+            subprocess.run(c.DOCKER + ["restart", "-t", "30", SERVER], check=True)
         else:
-            subprocess.run(["docker", "kill", "-s", "KILL", SERVER], check=True)
-            subprocess.run(["docker", "start", SERVER], check=True)
+            subprocess.run(c.DOCKER + ["kill", "-s", "KILL", SERVER], check=True)
+            subprocess.run(c.DOCKER + ["start", SERVER], check=True)
         ready = wait_ready(began)
         c.event(TEST, "restart", kind=kind, began=began, seconds_to_ready=ready)
         restarts.append({"kind": kind, "began": began, "seconds_to_ready": ready})

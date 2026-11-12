@@ -88,7 +88,7 @@ jobs:
           path: incoming
       - name: Merge, summarize, chart
         run: |
-          R=$DIR/results/${{ inputs.profile || 'sized-2g' }}
+          R=$DIR/github/results/${{ inputs.profile || 'sized-2g' }}
           rm -rf $R && mkdir -p $R
           python $DIR/footprint/merge.py incoming $R
           python $DIR/footprint/summarize.py $R \

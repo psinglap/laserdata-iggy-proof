@@ -46,10 +46,10 @@ def planned_records() -> int:
 def pause_server(after_seconds: float) -> None:
     time.sleep(after_seconds)
     c.set_phase(TEST, "server-paused")
-    subprocess.run(["docker", "pause", SERVER], check=True)
+    subprocess.run(c.DOCKER + ["pause", SERVER], check=True)
     c.event(TEST, "server_paused")
     time.sleep(PAUSE_SECONDS)
-    subprocess.run(["docker", "unpause", SERVER], check=True)
+    subprocess.run(c.DOCKER + ["unpause", SERVER], check=True)
     c.set_phase(TEST, "after-resume")
     c.event(TEST, "server_resumed")
 

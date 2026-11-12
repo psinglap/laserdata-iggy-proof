@@ -22,49 +22,69 @@ PY=${PYTHON:-python3}
 OUT=$FOOTPRINT_OUT
 
 rm -rf "$OUT" && mkdir -p "$OUT"
-[ -d "$STACK/.git" ] || git clone -q https://github.com/laserdata/laser-stack "$STACK"
-git -C "$STACK" fetch -q origin "$STACK_SHA" 2>/dev/null; git -C "$STACK" checkout -q "$STACK_SHA"
-[ -f "$STACK/.env" ] || cp "$STACK/.env.example" "$STACK/.env"
-# Laser Stack's own start script, so the server and managed backend come up exactly as
-# LaserData ships them; it waits until both report healthy. Our only addition is limits.yml.
-export COMPOSE_FILE="$STACK/compose.yaml:$HERE/stack/limits.yml"
-# Server profile: "shipped" (Laser Stack as is) or "sized-2g" (budgets shrunk to fit 2 GiB).
-PROFILE=${PROFILE:-shipped}
-[ "$PROFILE" = "shipped" ] || COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/$PROFILE.yml"
-if [ -n "${FOOTPRINT_DATA_DIR:-}" ]; then
-  mkdir -p "$FOOTPRINT_DATA_DIR/iggy" "$FOOTPRINT_DATA_DIR/plane"
-  COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/data-disk.yml"
+if [ -n "${REMOTE_SERVER:-}" ]; then
+  # The server runs on another machine (gcp-vm/ starts it there). The tests reach its Docker over SSH.
+  export LASER_CONNECTION_STRING=${LASER_CONNECTION_STRING:-iggy:laser@$REMOTE_SERVER:8090}
+  export FOOTPRINT_PING=${FOOTPRINT_PING:-http://$REMOTE_SERVER:3000/ping}
+  export FOOTPRINT_DOCKER="ssh -o StrictHostKeyChecking=no -o BatchMode=yes $REMOTE_SERVER sudo docker"
+  D() { $FOOTPRINT_DOCKER "$@"; }
+  until curl -fs "$FOOTPRINT_PING" >/dev/null; do sleep 1; done
+  SERVER=$(D ps -qf name=laser-stack-iggy-1); PLANE=$(D ps -qf name=laser-stack-plane-1)
+  PROFILE=${PROFILE:-shipped}
+  STACK_SHA=$(ssh -o BatchMode=yes "$REMOTE_SERVER" cat /opt/fp/stack-sha 2>/dev/null || echo "$STACK_SHA")
+  HOST_INFO="$(ssh -o BatchMode=yes "$REMOTE_SERVER" "lscpu | sed -n 's/^Model name:\s*//p' | head -1; nproc; free -m | awk '/Mem:/{print \$2}'; uname -r")"
+else
+  [ -d "$STACK/.git" ] || git clone -q https://github.com/laserdata/laser-stack "$STACK"
+  git -C "$STACK" fetch -q origin "$STACK_SHA" 2>/dev/null; git -C "$STACK" checkout -q "$STACK_SHA"
+  [ -f "$STACK/.env" ] || cp "$STACK/.env.example" "$STACK/.env"
+  # Laser Stack's own start script, so the server and managed backend come up exactly as
+  # LaserData ships them; it waits until both report healthy. Our only addition is limits.yml.
+  export COMPOSE_FILE="$STACK/compose.yaml:$HERE/stack/limits.yml"
+  # Server profile: "shipped" (Laser Stack as is) or "sized-2g" (budgets shrunk to fit 2 GiB).
+  PROFILE=${PROFILE:-shipped}
+  [ "$PROFILE" = "shipped" ] || COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/$PROFILE.yml"
+  if [ -n "${FOOTPRINT_DATA_DIR:-}" ]; then
+    mkdir -p "$FOOTPRINT_DATA_DIR/iggy" "$FOOTPRINT_DATA_DIR/plane"
+    COMPOSE_FILE="$COMPOSE_FILE:$HERE/stack/data-disk.yml"
+  fi
+  compose() { docker compose --project-directory "$STACK" --env-file "$STACK/.env" "$@"; }
+  CI=true "$STACK/scripts/up" || { compose logs --no-color --tail 200; exit 1; }
+  until curl -fs http://127.0.0.1:3000/ping >/dev/null; do sleep 1; done
+  SERVER=$(compose ps -q iggy); PLANE=$(compose ps -q plane)
+  D() { docker "$@"; }
+  HOST_INFO="$(lscpu | sed -n 's/^Model name:\s*//p' | head -1; nproc; free -m | awk '/Mem:/{print $2}'; uname -r)"
 fi
-compose() { docker compose --project-directory "$STACK" --env-file "$STACK/.env" "$@"; }
-CI=true "$STACK/scripts/up" || { compose logs --no-color --tail 200; exit 1; }
-until curl -fs http://127.0.0.1:3000/ping >/dev/null; do sleep 1; done
-SERVER=$(compose ps -q iggy); PLANE=$(compose ps -q plane)
 export FOOTPRINT_SERVER=$SERVER
 
 # What ran, recorded with the results.
 {
   echo "{"
-  echo "  \"server_image\": \"$(docker inspect -f '{{.Image}}' "$SERVER")\","
-  echo "  \"server_image_digest\": \"$(docker image inspect -f '{{index .RepoDigests 0}}' "$(docker inspect -f '{{.Config.Image}}' "$SERVER")")\","
-  echo "  \"server_version\": \"$(docker exec "$SERVER" sh -c 'iggy-server --version 2>/dev/null || true' | head -1 | tr -d '"')\","
-  echo "  \"plane_image_digest\": \"$(docker image inspect -f '{{index .RepoDigests 0}}' "$(docker inspect -f '{{.Config.Image}}' "$PLANE")")\","
+  echo "  \"server_image\": \"$(D inspect -f '{{.Image}}' "$SERVER")\","
+  echo "  \"server_image_digest\": \"$(D image inspect -f '{{index .RepoDigests 0}}' "$(D inspect -f '{{.Config.Image}}' "$SERVER")")\","
+  echo "  \"server_version\": \"$(D exec "$SERVER" sh -c 'iggy-server --version 2>/dev/null || true' | head -1 | tr -d '"')\","
+  echo "  \"plane_image_digest\": \"$(D image inspect -f '{{index .RepoDigests 0}}' "$(D inspect -f '{{.Config.Image}}' "$PLANE")")\","
   echo "  \"laser_stack_commit\": \"$STACK_SHA\","
   echo "  \"laser_sdk\": \"$($PY -c 'import importlib.metadata as m; print(m.version("laser-sdk"))')\","
   echo "  \"python\": \"$($PY -c 'import platform; print(platform.python_version())')\","
   echo "  \"server_cpus\": \"$SERVER_CPUS\", \"server_memory_limit\": \"$SERVER_MEMORY\", \"client_cpus\": \"$CLIENT_CPUS\","
-  echo "  \"host_cpu\": \"$(lscpu | sed -n 's/^Model name:\s*//p' | head -1)\","
-  echo "  \"host_cores\": $(nproc), \"host_memory_mib\": $(free -m | awk '/Mem:/{print $2}'),"
-  echo "  \"kernel\": \"$(uname -r)\", \"scale\": $FOOTPRINT_SCALE,"
+  { read -r HCPU; read -r HCORES; read -r HMEM; read -r HKERNEL; } <<< "$HOST_INFO"
+  echo "  \"host_cpu\": \"$HCPU\", \"host_cores\": $HCORES, \"host_memory_mib\": $HMEM, \"kernel\": \"$HKERNEL\","
+  echo "  \"client_host\": \"${REMOTE_SERVER:+separate VM, $(nproc) vCPU}\", \"scale\": $FOOTPRINT_SCALE,"
   echo "  \"tests\": \"$TESTS\", \"profile\": \"$PROFILE\","
   echo "  \"started\": \"$(date -u +%FT%TZ)\""
   echo "}"
 } > "$OUT/env.json"
 cat "$OUT/env.json"
 
-$PY "$HERE/footprint/sampler.py" --out "$OUT" --server "$SERVER" --plane "$PLANE" &
+if [ -n "${REMOTE_SERVER:-}" ]; then  # the server VM samples itself
+  $PY "$HERE/footprint/sampler.py" --out "$OUT" &
+else
+  $PY "$HERE/footprint/sampler.py" --out "$OUT" --server "$SERVER" --plane "$PLANE" &
+fi
 SAMPLER=$!
 run() { taskset -c "$CLIENT_CPUS" "$PY" "$HERE/footprint/$@"; }
-phase() { printf '%s\t%s' "$1" "$2" > "$OUT/phase"; }
+phase() { printf '%s\t%s' "$1" "$2" > "$OUT/phase"
+  printf '{"t": %s, "test": "%s", "event": "phase", "phase": "%s"}\n' "$(date +%s.%N)" "$1" "$2" >> "$OUT/events.jsonl"; }
 STATUS=()
 check() { if [ "$2" -ne 0 ]; then STATUS+=("\"$1\": \"failed\""); else STATUS+=("\"$1\": \"passed\""); fi; }
 SCALE_SECS() { $PY -c "print(max(1,int($1*$FOOTPRINT_SCALE)))"; }
@@ -108,11 +128,11 @@ fi
 
 phase done done
 touch "$OUT/stop"; wait $SAMPLER
-docker inspect -f '{"oom_killed": {{.State.OOMKilled}}, "restart_count": {{.RestartCount}}}' "$SERVER" > "$OUT/server-state.json"
+D inspect -f '{"oom_killed": {{.State.OOMKilled}}, "restart_count": {{.RestartCount}}}' "$SERVER" > "$OUT/server-state.json"
 [ ${#STATUS[@]} -eq 0 ] && STATUS+=("\"idle\": \"passed\"")
-compose logs --no-color iggy > "$OUT/server.log" 2>&1
-compose logs --no-color plane > "$OUT/backend.log" 2>&1
+D logs "$SERVER" > "$OUT/server.log" 2>&1
+D logs "$PLANE" > "$OUT/backend.log" 2>&1
 (IFS=,; echo "{${STATUS[*]}}") > "$OUT/status.json"
 cat "$OUT/status.json" "$OUT/server-state.json"
-compose down -v
+[ -n "${REMOTE_SERVER:-}" ] || compose down -v
 grep -q failed "$OUT/status.json" && exit 1 || exit 0
