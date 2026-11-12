@@ -25,9 +25,8 @@ Laser SDK clients in the situations engineers report most:
 | Folder | Where | Client and server |
 |---|---|---|
 | [`gcp-vm/`](gcp-vm/README.md) | Self-hosted on Google Cloud VMs (`n2-standard-4`), one pair per test, all at once | Separate VMs in one zone, like an app and its streaming server |
-| `run.sh` | Any Linux machine with Docker | Same machine, separate cores |
 
-Both use the **sized-2g** server profile (`stack/sized-2g.yml`): Laser Stack's settings with the memory
+It uses the **sized-2g** server profile (`stack/sized-2g.yml`): Laser Stack's settings with the memory
 pool at 512 MiB and the write-ahead log at its minimum (~128 MiB per partition), sized for the
 2 GiB node, as the sizing guide recommends for small nodes. Laser Stack's shipped values are meant
 for larger nodes.
@@ -50,32 +49,12 @@ for larger nodes.
 creates a server VM and a client VM per test, runs everything at once, brings the results back and
 deletes the VMs. See [`gcp-vm/`](gcp-vm/README.md).
 
-**On Linux with Docker:**
-
-```bash
-pip install -r requirements.txt
-FOOTPRINT_SCALE=0.1 ./run.sh      # 8-minute trial
-./run.sh                          # full run, about 1 hour
-python footprint/summarize.py results   # if you put several runs in results/rep-*/
-```
-
-**Against your own LaserData deployment:** set `LASER_CONNECTION_STRING` and run the backlog test
-directly, wrapping the consume step to get the client's peak memory. A Free Tier deployment is
-capped at 200 KB/s, so use `FOOTPRINT_SCALE=0.01` there; full size needs a paid tier.
-
-```bash
-export LASER_CONNECTION_STRING='user:password@your-deployment:8090' FOOTPRINT_SCALE=0.01
-python footprint/consumer_backlog.py preload --partitions 50
-/usr/bin/time -v python footprint/consumer_backlog.py consume --partitions 50   # macOS: -l
-```
-
 **With a coding agent:** see `AGENTS.md`.
 
 ## Good to know
 
-- LaserData's managed backend keeps its data only on disks with write barriers. Some CI runners and
-  cloud images mount disks without them; `stack/data-disk.yml` shows how to give it a proper disk.
-  Normal cloud persistent disks and local disks need nothing.
+- LaserData's managed backend keeps its data only on disks with write barriers. The Google Cloud
+  script gives the server VM an SSD persistent disk for its data (`stack/data-disk.yml`).
 - The test consumer is one Python process handling one record at a time, so it reads roughly
   8,000–13,000 records/s. That is the test client's pace, so the results make no throughput claims.
 - A long-running service should rebuild its consumer if the live stream ends after a long outage;
@@ -85,7 +64,7 @@ python footprint/consumer_backlog.py preload --partitions 50
 
 | File | Purpose |
 |---|---|
-| `run.sh` | Starts Laser Stack with the limits, runs the three tests, collects evidence |
+| `run.sh` | Runs the tests on the client VM against the server VM (called by `gcp-vm/run-gcp.sh`) |
 | `stack/limits.yml` | Cores and memory limit for the server; the only change to Laser Stack |
 | `stack/data-disk.yml` | CI only: data on a disk with write barriers |
 | `footprint/sampler.py` | Per-second memory and CPU from the kernel |
