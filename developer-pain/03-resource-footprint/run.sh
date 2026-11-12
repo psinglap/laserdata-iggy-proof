@@ -3,6 +3,7 @@
 #
 #   ./run.sh                      full run, about 55 minutes
 #   FOOTPRINT_SCALE=0.1 ./run.sh  quick trial, about 8 minutes
+#   TESTS="restart" ./run.sh      one test only (idle, backlog-2, backlog-10, backlog-50, producer, restart)
 #
 # Starts Laser Stack (LaserData's server and managed backend) with the server capped at
 # 2 cores and 2 GiB, runs the three tests with Laser SDK clients, and writes everything
@@ -11,6 +12,8 @@ set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 export FOOTPRINT_OUT=${FOOTPRINT_OUT:-$HERE/results/local}
 export FOOTPRINT_SCALE=${FOOTPRINT_SCALE:-1}
+# Which tests to run; the GitHub workflow runs each on its own machine in parallel.
+TESTS=${TESTS:-idle backlog-2 backlog-10 backlog-50 producer restart}
 export SERVER_CPUS=${SERVER_CPUS:-2,3} CLIENT_CPUS=${CLIENT_CPUS:-0,1} SERVER_MEMORY=${SERVER_MEMORY:-2g}
 STACK=${LASER_STACK_DIR:-$HERE/.laser-stack}
 STACK_SHA=46dd0168675b54ce3d9025dace26574603220d10  # laserdata/laser-stack, 2026-11-10
@@ -48,6 +51,7 @@ export FOOTPRINT_SERVER=$SERVER
   echo "  \"host_cpu\": \"$(lscpu | sed -n 's/^Model name:\s*//p' | head -1)\","
   echo "  \"host_cores\": $(nproc), \"host_memory_mib\": $(free -m | awk '/Mem:/{print $2}'),"
   echo "  \"kernel\": \"$(uname -r)\", \"scale\": $FOOTPRINT_SCALE,"
+  echo "  \"tests\": \"$TESTS\","
   echo "  \"started\": \"$(date -u +%FT%TZ)\""
   echo "}"
 } > "$OUT/env.json"
@@ -61,37 +65,47 @@ STATUS=()
 check() { if [ "$2" -ne 0 ]; then STATUS+=("\"$1\": \"failed\""); else STATUS+=("\"$1\": \"passed\""); fi; }
 SCALE_SECS() { $PY -c "print(max(1,int($1*$FOOTPRINT_SCALE)))"; }
 
-echo "== idle"
-phase idle idle; sleep "$(SCALE_SECS 120)"
+want() { case " $TESTS " in *" $1 "*) return 0;; *) return 1;; esac; }
 
-echo "== test 1: consumer backlog"
+if want idle; then
+  echo "== idle"
+  phase idle idle; sleep "$(SCALE_SECS 120)"
+fi
+
 for p in 2 10 50; do
+  want "backlog-$p" || continue
+  echo "== test 1: consumer backlog, $p partitions"
   run consumer_backlog.py preload --partitions "$p"
   phase consumer_backlog "settle-${p}p"; sleep 10
   run consumer_backlog.py consume --partitions "$p"; check "consumer_backlog_${p}p" $?
   run consumer_backlog.py cleanup --partitions "$p"
 done
 
-echo "== test 2: producer with server paused"
-run producer_pause.py consume & C=$!
-sleep 3
-run producer_pause.py produce; check producer_pause_producer $?
-wait $C; check producer_pause_consumer $?
-run producer_pause.py cleanup
+if want producer; then
+  echo "== test 2: producer with server paused"
+  run producer_pause.py consume & C=$!
+  sleep 3
+  run producer_pause.py produce; check producer_pause_producer $?
+  wait $C; check producer_pause_consumer $?
+  run producer_pause.py cleanup
+fi
 
-echo "== test 3: restart"
-run restart.py preload
-run restart.py consume & C=$!
-run restart.py produce & P=$!
-sleep 3
-run restart.py orchestrate; check restart_orchestrator $?
-wait $P; check restart_producer $?
-wait $C; check restart_consumer $?
-run restart.py cleanup
+if want restart; then
+  echo "== test 3: restart"
+  run restart.py preload
+  run restart.py consume & C=$!
+  run restart.py produce & P=$!
+  sleep 3
+  run restart.py orchestrate; check restart_orchestrator $?
+  wait $P; check restart_producer $?
+  wait $C; check restart_consumer $?
+  run restart.py cleanup
+fi
 
 phase done done
 touch "$OUT/stop"; wait $SAMPLER
 docker inspect -f '{"oom_killed": {{.State.OOMKilled}}, "restart_count": {{.RestartCount}}}' "$SERVER" > "$OUT/server-state.json"
+[ ${#STATUS[@]} -eq 0 ] && STATUS+=("\"idle\": \"passed\"")
 compose logs --no-color iggy > "$OUT/server.log" 2>&1
 compose logs --no-color plane > "$OUT/backend.log" 2>&1
 (IFS=,; echo "{${STATUS[*]}}") > "$OUT/status.json"

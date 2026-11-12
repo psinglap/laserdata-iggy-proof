@@ -1,52 +1,74 @@
-> **LaserData proof · Developer pain 03: Memory / CPU / JVM / GC**  
-> Blog: [Running Apache Iggy small: one binary on one or two cores, at the edge, as a sidecar or on small nodes](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size an Apache Iggy deployment](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
-> Where this code goes: LaserData repo: a measurement kit anyone can run.  
-> Status: not yet run against a live Apache Iggy server unless a checklist below says so. Nothing has been opened upstream.
+> **LaserData proof · Developer pain 03: Memory / CPU**  
+> Blog: [Consumers that grow to 6 GB, producers that leak, brokers that spike on restart: we measured LaserData on all three](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size memory and CPU for LaserData](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
+> Where this code goes: the LaserData use-case repository, after LaserData engineering has reviewed it.  
+> Status: runs on GitHub Actions; the latest measured results are in [results/](results/README.md).
 
-# Apache Iggy footprint kit, from LaserData
+# LaserData footprint tests
 
-Measures how much CPU and memory an Apache Iggy server uses when idle and at
-10K, 100K and 1M messages per second, so you can size nodes from your own
-numbers instead of ours.
+Three tests that measure the memory and CPU of LaserData's server (Laser Streams) and of
+Laser SDK clients in the situations engineers report most:
 
-Built by the LaserData team, which builds and runs Apache Iggy.
+| Test | The problem it answers | What runs | Pass condition |
+|---|---|---|---|
+| `consumer_backlog.py` | A consumer that grows from 800 MB to 6 GB when partitions and lag go up | 7 million records (1 KiB) preloaded at 2, 10 and 50 partitions; one Laser SDK consumer reads them all from offset 0 | every record read once |
+| `producer_pause.py` | A producer whose memory keeps climbing under sustained sends | Laser SDK producer, background mode, 20,000 records/s for 30 minutes; server frozen with `docker pause` for 60 s halfway; a consumer checks every record | no record missing unless the SDK reported it to the app |
+| `restart.py` | A broker restart that spikes CPU and memory and stalls its neighbours | 4 GiB on disk; producer (5,000 records/s) and consumer connected; graceful restart, then `kill -9` and start | no confirmed record missing |
 
-## What it measures
+## How it measures
 
-| Phase | Load | Length |
-|---|---|---|
-| idle | none, server just started | 2 min |
-| 10000 | 10K msg/s, 256 B, 8 partitions, one consumer group | 5 min |
-| 100000 | 100K msg/s | 5 min |
-| 1000000 | 1M msg/s | 5 min |
-
-Memory and CPU come from the server's own stats (`get_stats()`): process RSS and
-CPU summed over cores, sampled every second. The first 30 s of each phase are dropped.
+- **Server:** Laser Streams and LaserData's managed backend, started with
+  [Laser Stack](https://github.com/laserdata/laser-stack)'s own `scripts/up` at a pinned commit,
+  with LaserData's shipped settings. `stack/limits.yml` is the only addition: it gives the server
+  two dedicated cores and a 2 GiB memory limit, and puts the clients on the other cores.
+- **Clients:** [Laser SDK](https://docs.laserdata.com/laser-sdk) for Python, SDK default settings.
+  Record size (1 KiB) and batch size (100) are taken from LaserData's own benchmark suite.
+- **Numbers:** `footprint/sampler.py` reads every process's resident memory and CPU from `/proc`
+  and cgroup v2 once a second. The container total (which includes page cache) is recorded too.
+- **Correctness:** every record carries a sequence number; missing or duplicate records are counted.
 
 ## Run it
 
+**On GitHub, no Linux machine needed.** Fork this repository, open **Actions**, choose
+**LaserData footprint**, then **Run workflow**. `scale = 0.1` is an 8-minute trial that publishes
+nothing; `scale = 1` runs the full hour three times on fresh machines and commits `results/`.
+
+**On Linux with Docker:**
+
 ```bash
-pip install apache-iggy
-IGGY_CPUS=2 IGGY_MEM=2g ./run.sh      # small node
-IGGY_CPUS=8 IGGY_MEM=8g ./run.sh      # larger node
+pip install -r requirements.txt
+FOOTPRINT_SCALE=0.1 ./run.sh      # 8-minute trial
+./run.sh                          # full run, about 1 hour
+python footprint/summarize.py results   # if you put several runs in results/rep-*/
 ```
 
-Each run writes `footprint-<N>cpu.csv` and a Markdown table of medians and p95s.
+**Against your own LaserData deployment:** set `LASER_CONNECTION_STRING` and run one test
+directly, for example `python footprint/consumer_backlog.py preload --partitions 50`, then
+`consume`. Client memory is still sampled locally; read server memory from the LaserData Console.
 
-## Rules we follow when publishing
+**With a coding agent:** see `AGENTS.md`.
 
-- The load generator runs on a separate machine (or disjoint CPUs) for the 100K and 1M steps.
-  `loadgen.py` warns when it falls below 95% of the target rate; a run with that warning is not published.
-- Record the image tag, host type, kernel, disk and the `IGGY_*` settings with every result.
-- Publish every run, including the ones that look bad.
+## Things we found while building it
 
-## Settings that change the footprint
+- GitHub-hosted runners mount their disks with `nobarrier`. LaserData's managed backend refuses
+  to keep data on such a disk, so the workflow creates an ext4 image with write barriers
+  (`stack/data-disk.yml`). Local runs on a normal disk don't need it.
+- The test consumer is one Python process handling one record at a time, so it is CPU-bound at
+  roughly 10,000–13,000 records/s. That limits the test client, not LaserData, so the results make
+  no throughput claims.
+- After a 60-second server freeze, a Laser SDK consumer raises `the live consumer stream ended`.
+  The tests then build a new consumer in the same group, as a long-running service should, and
+  record how often that was needed.
 
-| Setting | Env var | Effect |
-|---|---|---|
-| `sharding.cpu_allocation` | `IGGY_SHARDING_CPU_ALLOCATION` | Number of shards. Each shard is a thread on its own core with its own buffers. |
-| `memory_pool.size` | `IGGY_MEMORY_POOL_SIZE` | Budget for pooled buffers, allocated on demand. Minimum 512 MiB. |
-| topic `segment_size` | set at topic creation | Up to 1 GiB per segment on disk. |
-| topic `preallocate_segments` | set at topic creation | Reserves a full segment of disk per partition up front. Off by default. |
+## Files
 
-Disclosure: I work at LaserData, which builds and runs Apache Iggy.
+| File | Purpose |
+|---|---|
+| `run.sh` | Starts Laser Stack with the limits, runs the three tests, collects evidence |
+| `stack/limits.yml` | Cores and memory limit for the server; the only change to Laser Stack |
+| `stack/data-disk.yml` | CI only: data on a disk with write barriers |
+| `footprint/sampler.py` | Per-second memory and CPU from the kernel |
+| `footprint/consumer_backlog.py`, `producer_pause.py`, `restart.py` | The three tests |
+| `footprint/summarize.py`, `charts.py` | Build `results/README.md`, `summary.json` and the charts |
+| `../../.github/workflows/footprint.yml` | The GitHub workflow |
+
+Built by the LaserData team.

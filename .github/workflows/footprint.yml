@@ -1,16 +1,20 @@
 # LaserData footprint tests (developer-pain/03-resource-footprint).
-# Runs the three tests three times, each on its own fresh GitHub-hosted Linux machine,
-# then builds the summary and charts and commits them to the folder's results/.
+# Every test runs on its own fresh GitHub-hosted Linux machine, all at once:
+# 3 repetitions x 5 test groups = 15 machines. A final job merges their evidence,
+# builds the summary and charts, and commits them to the folder's results/.
 name: LaserData footprint
 on:
   workflow_dispatch:
     inputs:
       scale:
-        description: "1 = full run (about 1 hour). 0.1 = quick trial, nothing is published."
+        description: "1 = full run (about 40 minutes). 0.1 = quick trial (about 12 minutes), nothing is published."
         default: "1"
       reps:
         description: "Repetitions, as a JSON list"
         default: "[1,2,3]"
+      tests:
+        description: "Tests, as a JSON list: backlog-2, backlog-10, backlog-50, producer, restart"
+        default: '["backlog-2","backlog-10","backlog-50","producer","restart"]'
   schedule:
     - cron: "0 5 * * 1"  # every Monday, so new LaserData releases are re-measured
 
@@ -24,45 +28,41 @@ env:
 
 jobs:
   measure:
+    name: rep ${{ matrix.rep }} · ${{ matrix.test }}
     strategy:
       fail-fast: false
       matrix:
         rep: ${{ fromJSON(inputs.reps || '[1,2,3]') }}
+        test: ${{ fromJSON(inputs.tests || '["backlog-2","backlog-10","backlog-50","producer","restart"]') }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      - name: Free disk space for test data
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          docker system prune -af >/dev/null
-          df -h /
       - name: Data disk with write barriers (LaserData's backend refuses nobarrier disks)
         run: |
-          findmnt -no OPTIONS / ; findmnt -no OPTIONS /mnt || true
           sudo fallocate -l 40G /mnt/laserdata.img
           sudo mkfs.ext4 -q /mnt/laserdata.img
           sudo mkdir -p /data && sudo mount -o loop,barrier=1 /mnt/laserdata.img /data
           sudo mkdir -p /data/iggy /data/plane && sudo chmod -R 777 /data
-          findmnt -no SOURCE,FSTYPE,OPTIONS /data; df -h /data
+          findmnt -no SOURCE,FSTYPE,OPTIONS /data; df -h / /data
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r $DIR/requirements.txt
-      - name: Run the tests
+      - name: Run ${{ matrix.test }}
         env:
           FOOTPRINT_SCALE: ${{ inputs.scale || '1' }}
-          FOOTPRINT_OUT: ${{ github.workspace }}/out/rep-${{ matrix.rep }}
+          FOOTPRINT_OUT: ${{ github.workspace }}/out
           FOOTPRINT_DATA_DIR: /data
-        run: |
-          nproc; free -m
-          $DIR/run.sh
-      - name: Keep the run's evidence
+          # The idle measurement rides along with the shortest test.
+          TESTS: ${{ matrix.test == 'restart' && 'idle restart' || matrix.test }}
+        run: $DIR/run.sh
+      - name: Keep the evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rep-${{ matrix.rep }}
-          path: out/rep-${{ matrix.rep }}
+          name: rep-${{ matrix.rep }}-${{ matrix.test }}
+          path: out
 
   publish:
     needs: measure
@@ -79,14 +79,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: incoming
-      - name: Build summary and charts
+      - name: Merge, summarize, chart
         run: |
           rm -rf $DIR/results && mkdir -p $DIR/results
-          for d in incoming/rep-*; do
-            r=$DIR/results/$(basename $d); mkdir -p $r
-            cp $d/*.json $d/*.jsonl $d/samples.csv $r/ 2>/dev/null || true
-            tail -n 300 $d/server.log > $r/server-tail.log 2>/dev/null || true
-          done
+          python $DIR/footprint/merge.py incoming $DIR/results
           python $DIR/footprint/summarize.py $DIR/results \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           python $DIR/footprint/charts.py $DIR/results
@@ -96,4 +92,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add $DIR/results
           git commit -m "Footprint results from run ${{ github.run_id }}" || exit 0
-          git push
+          git pull --rebase -q && git push
