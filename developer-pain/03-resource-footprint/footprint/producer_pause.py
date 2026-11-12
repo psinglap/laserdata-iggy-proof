@@ -123,23 +123,8 @@ async def consume() -> int:
     try:
         topic = laser.stream(STREAM).topic(TOPIC)
         await topic.ensure(PARTITIONS)
-        consumer = topic.consumer_group("footprint").consumer(polling="first")
-        await consumer.init()
-        idle_since = None
-        while tracker.unique < total:
-            try:
-                message = await consumer.next_within(5000)
-            except Exception:
-                message = None
-            if message is not None:
-                tracker.add(c.seq_of(message.payload))
-                idle_since = None
-                continue
-            if marker.exists():  # the producer finished; give stragglers a minute
-                idle_since = idle_since or time.perf_counter()
-                if time.perf_counter() - idle_since > 60:
-                    break
-        await consumer.shutdown()
+        live = await c.consume_live(topic.consumer_group("footprint"), tracker,
+                                    lambda: total if marker.exists() else None, TEST)
     finally:
         await laser.close()
         c.unregister_client("consumer")
@@ -149,7 +134,9 @@ async def consume() -> int:
               "duplicates": tracker.duplicates, "missing": len(missing),
               # A record is only lost if it is missing AND the SDK never told the app it failed.
               "missing_not_reported": len([s for s in missing if s not in reported]),
-              "missing_seqs_sample": missing[:50]}
+              "missing_ranges": c.missing_ranges(tracker, total),
+              "consumer_errors": live["errors"], "consumer_recreated": len(live["recreations"]),
+              "gaps": live["gaps"]}
     c.write_result(f"{TEST}-consumer", result)
     print(result)
     return 0 if result["missing_not_reported"] == 0 else 1

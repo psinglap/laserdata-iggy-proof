@@ -6,7 +6,7 @@ services around it stalled.
 What this does:
   preload      writes 4 million records (1 KiB each, about 4 GiB) so the server has real
                data to reopen
-  produce      a Laser SDK producer keeps sending 10,000 records/s and retries through outages
+  produce      a Laser SDK producer keeps sending 5,000 records/s to a separate live topic
   consume      a Laser SDK consumer group keeps reading and checks every record
   orchestrate  60 s steady, then a graceful restart (`docker restart`), 120 s, then a crash
                (`docker kill -s KILL` and `docker start`), 120 s
@@ -32,22 +32,23 @@ import urllib.request
 import common as c
 
 TEST = "restart"
-STREAM, TOPIC = "fp-restart", "events"
+STREAM, TOPIC, ARCHIVE = "fp-restart", "events", "archive"
 PARTITIONS = 8
-RATE = 10_000
+RATE = 5_000  # below what one Python consumer process keeps up with
 SERVER = os.environ.get("FOOTPRINT_SERVER", "laser-stack-iggy-1")
 PING = os.environ.get("FOOTPRINT_PING", "http://127.0.0.1:3000/ping")
 STOP = c.OUT / "restart_stop"
 TOTAL = c.OUT / "restart_total"
 PRELOAD = c.scaled(4_000_000)
-LIVE_MAX = PRELOAD + RATE * 900  # upper bound on live records, for the tracker
+LIVE_MAX = RATE * 900  # upper bound on live records, for the tracker
 
 
 async def preload() -> None:
     c.set_phase(TEST, "preload")
     laser = await c.connect()
     try:
-        producer = laser.stream(STREAM).topic(TOPIC).producer(
+        # The archive is data the server must reopen on restart; live traffic uses its own topic.
+        producer = laser.stream(STREAM).topic(ARCHIVE).producer(
             partitions=PARTITIONS, batch_length=c.BATCH, create_stream=True, never_expire=True)
         await producer.init()
         for first in range(0, PRELOAD, c.BATCH):
@@ -60,11 +61,12 @@ async def preload() -> None:
 async def produce() -> int:
     """Sends at RATE, and after any failure retries the same batch until it is confirmed."""
     c.register_client("producer")
-    seq = PRELOAD
+    seq = 0
     outages, stalls = [], []
     laser = await c.connect()
     try:
-        producer = laser.stream(STREAM).topic(TOPIC).producer(partitions=PARTITIONS, batch_length=c.BATCH)
+        producer = laser.stream(STREAM).topic(TOPIC).producer(partitions=PARTITIONS, batch_length=c.BATCH,
+                                                               never_expire=True)
         await producer.init()
         start, sent_since = time.perf_counter(), 0
         while not STOP.exists():
@@ -104,56 +106,21 @@ async def produce() -> int:
 async def consume() -> int:
     c.register_client("consumer")
     tracker = c.SeqTracker(LIVE_MAX)
-    gaps = []
     laser = await c.connect()
     try:
-        group = laser.stream(STREAM).topic(TOPIC).consumer_group("footprint")
-        consumer = group.consumer(polling="first")
-        await consumer.init()
-        last_record, idle_since = time.time(), None
-        while True:
-            try:
-                message = await consumer.next_within(2000)
-            except Exception as error:
-                message = None
-                if "imeout" not in type(error).__name__ + str(error):
-                    c.event(TEST, "consumer_error", error=repr(error)[:200])
-                    try:
-                        await consumer.shutdown()
-                    except Exception:
-                        pass
-                    await asyncio.sleep(0.5)
-                    try:
-                        consumer = group.consumer(polling="first")
-                        await consumer.init()
-                    except Exception:
-                        await asyncio.sleep(0.5)
-            if message is not None:
-                now = time.time()
-                if now - last_record > 0.5:
-                    gaps.append({"from": last_record, "to": now})
-                    c.event(TEST, "consumer_resumed", seconds=round(now - last_record, 2))
-                last_record = now
-                tracker.add(c.seq_of(message.payload))
-                idle_since = None
-                continue
-            if TOTAL.exists():
-                total = int(TOTAL.read_text())
-                if tracker.unique >= total:
-                    break
-                idle_since = idle_since or time.time()
-                if time.time() - idle_since > 60:
-                    break
-        try:
-            await consumer.shutdown()
-        except Exception:
-            pass
+        topic = laser.stream(STREAM).topic(TOPIC)
+        await topic.ensure(PARTITIONS)
+        live = await c.consume_live(topic.consumer_group("footprint"), tracker,
+                                    lambda: int(TOTAL.read_text()) if TOTAL.exists() else None, TEST)
     finally:
         await laser.close()
         c.unregister_client("consumer")
     total = int(TOTAL.read_text())
     result = {"records_confirmed": total, "received_unique": total - tracker.missing(total),
-              "missing_confirmed": tracker.missing(total), "duplicates": tracker.duplicates, "gaps": gaps}
+              "missing_confirmed": tracker.missing(total), "duplicates": tracker.duplicates,
+              "missing_ranges": c.missing_ranges(tracker, total),
+              "consumer_errors": live["errors"], "consumer_recreated": len(live["recreations"]),
+              "gaps": live["gaps"]}
     c.write_result(f"{TEST}-consumer", result)
     print({k: v for k, v in result.items() if k != "gaps"})
     return 0 if result["missing_confirmed"] == 0 else 1
