@@ -3,7 +3,7 @@
 # same limits as the GitHub run, reachable from the client VM, and samples it once a second.
 set -euo pipefail
 PROFILE=${1:-sized-2g}
-HERE=/opt/fp/repo/developer-pain/03-resource-footprint
+HERE=/opt/fp/kit
 STACK=/opt/fp/laser-stack
 STACK_SHA=$(sed -n 's/^STACK_SHA=\([0-9a-f]*\).*/\1/p' "$HERE/run.sh")
 [ -d "$STACK/.git" ] || git clone -q https://github.com/laserdata/laser-stack "$STACK"

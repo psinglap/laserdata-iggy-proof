@@ -18,7 +18,7 @@ logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 import matplotlib.pyplot as plt  # noqa: E402
 
 INK, MUTED, LINE = "#111a2b", "#5a6578", "#dde2ea"
-LIME, LIME_FILL, NAVY, ROSE = "#4f8a10", "#7cc23a", "#0b1322", "#b53a32"
+LIME, LIME_FILL, NAVY, MARK = "#4f8a10", "#7cc23a", "#0b1322", "#2f6fd6"  # MARK: test events, not failures
 plt.rcParams.update({
     "font.family": ["IBM Plex Sans", "DejaVu Sans"], "font.size": 11, "text.color": INK,
     "axes.edgecolor": LINE, "axes.labelcolor": MUTED, "xtick.color": MUTED, "ytick.color": MUTED,
@@ -99,8 +99,8 @@ def producer_chart(root: Path, s: dict, out: Path) -> None:
         if i == 0:
             paused = [x for x, r in zip(xs, rows) if r["phase"] == "server-paused"]
             if paused:
-                ax.axvspan(min(paused), max(paused), color=ROSE, alpha=0.12, lw=0)
-                ax.text((min(paused) + max(paused)) / 2, 4, "server unreachable\n60 s", color=ROSE,
+                ax.axvspan(min(paused), max(paused), color=MARK, alpha=0.12, lw=0)
+                ax.text((min(paused) + max(paused)) / 2, 4, "simulated outage\n60 s", color=MARK,
                         fontsize=10, ha="center", va="bottom")
     ax.set_xlabel("minutes")
     ax.set_ylabel("MiB")
@@ -137,9 +137,10 @@ def restart_chart(root: Path, s: dict, out: Path) -> None:
     ax.set_ylim(0, max(float(r["rss_mib"] or 0) for r in rows) * 1.45)
     for i, r in enumerate(orch):
         x = r["began"] - t0
-        ax.axvline(x, color=ROSE, lw=1.2, ls="--")
-        ax.text(x, ax.get_ylim()[1] * (0.97 - 0.14 * i), f" {r['kind']} restart, answering again in {r['seconds_to_ready']} s",
-                color=ROSE, fontsize=9.5, va="top")
+        ax.axvline(x, color=MARK, lw=1.2, ls="--")
+        label = "graceful restart" if r["kind"] == "graceful" else "crash (kill -9)"
+        ax.text(x, ax.get_ylim()[1] * (0.97 - 0.14 * i), f" {label} · serving again in {r['seconds_to_ready']:.1f} s",
+                color=MARK, fontsize=9.5, va="top")
     ax.set_xlabel("seconds")
     ax.set_ylabel("MiB")
     ax2.set_ylabel("% of one core")

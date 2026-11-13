@@ -1,5 +1,5 @@
 {
-  "run_url": "https://github.com/psinglap/laserdata-iggy-proof/tree/main/developer-pain/03-resource-footprint/gcp-vm",
+  "run_url": "../../run-gcp.sh",
   "run_label": "gcp-vm/run-gcp.sh",
   "where": "Google Cloud asia-south1-a: a server VM and a separate client VM per test, both n2-standard-4 with 4 dedicated vCPU; server data on a 100 GB SSD persistent disk",
   "repetitions": 3,

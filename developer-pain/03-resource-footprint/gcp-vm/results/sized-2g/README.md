@@ -1,6 +1,6 @@
 # Footprint results
 
-Measured 2026-11-12 by [gcp-vm/run-gcp.sh](https://github.com/psinglap/laserdata-iggy-proof/tree/main/developer-pain/03-resource-footprint/gcp-vm), 3 repetitions, each on Google Cloud asia-south1-a: a server VM and a separate client VM per test, both n2-standard-4 with 4 dedicated vCPU; server data on a 100 GB SSD persistent disk (4 vCPU Intel(R) Xeon(R) CPU @ 2.80GHz, 15 GiB, kernel 7.0.0-1017-gcp).
+Measured 2026-11-12 by [gcp-vm/run-gcp.sh](../../run-gcp.sh), 3 repetitions, each on Google Cloud asia-south1-a: a server VM and a separate client VM per test, both n2-standard-4 with 4 dedicated vCPU; server data on a 100 GB SSD persistent disk (4 vCPU Intel(R) Xeon(R) CPU @ 2.80GHz, 15 GiB, kernel 7.0.0-1017-gcp).
 
 Server: Laser Streams `server 0.10.1-ld` (`laserdatainc/iggy-server@sha256:348e27e6dca7a1a1b500e89d028dccc61ce7834ea9d76f4e621b3da6ed00a941`), from Laser Stack commit `46dd016`, LaserData's shipped settings, limited to 2g of memory and 2 dedicated cores. Clients: Laser SDK 0.9.1 for Python, SDK default settings, on separate cores.
 

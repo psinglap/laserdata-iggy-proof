@@ -1,7 +1,7 @@
 > **LaserData proof · Developer pain 03: Memory / CPU**  
-> Blog: [Consumers that grow to 6 GB, producers that leak, brokers that spike on restart: we measured LaserData on all three](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size memory and CPU for LaserData](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc) · Posts: [ready-to-publish drafts](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.posts~resource)  
+> Blog: [Consumers that grow to 6 GB, producers that leak, brokers that spike on restart: we measured LaserData on all three](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-blog) · Doc: [Size memory and CPU for LaserData](https://claude.ai/artifact/A674Dn6Tu3dXoLFVokeLwC#p.resource-doc)  
 > Where this code goes: the LaserData use-case repository, after LaserData engineering has reviewed it.  
-> Status: measured self-hosted on Google Cloud VMs (3 repetitions). Results: [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md). A LaserData Cloud (managed) run is next.
+> Status: measured self-hosted on Google Cloud VMs (3 repetitions). Results: [gcp-vm/results/sized-2g](gcp-vm/results/sized-2g/README.md). You can also run these tests against your own deployment on [LaserData Cloud](https://laserdata.cloud).
 
 # LaserData footprint tests
 

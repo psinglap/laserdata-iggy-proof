@@ -11,8 +11,12 @@ if [ -e /dev/disk/by-id/google-data ]; then
   mkdir -p /data && mount /dev/disk/by-id/google-data /data
   mkdir -p /data/iggy /data/plane && chmod -R 777 /data
 fi
-REF=$(curl -fs -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/attributes/fp-ref || echo main)
-git clone -q https://github.com/psinglap/laserdata-iggy-proof repo && git -C repo checkout -q "$REF"
-python3 -m venv venv && venv/bin/pip install -q -r repo/developer-pain/03-resource-footprint/requirements.txt
+# Which repository, commit and folder to use: run-gcp.sh passes the ones it was started from,
+# so this works from LaserData's repository, a fork or a copy without edits.
+md() { curl -fs -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/$1"; }
+REPO=$(md fp-repo); REF=$(md fp-ref || echo main); DIR=$(md fp-dir || echo .)
+git clone -q "$REPO" repo && git -C repo checkout -q "$REF"
+ln -sfn "/opt/fp/repo/$DIR" /opt/fp/kit
+python3 -m venv venv && venv/bin/pip install -q -r kit/requirements.txt
 chmod -R a+rwX /opt/fp
 touch /opt/fp/ready

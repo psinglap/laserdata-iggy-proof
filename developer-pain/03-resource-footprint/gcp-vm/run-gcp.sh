@@ -15,6 +15,10 @@ MACHINE=${MACHINE:-n2-standard-4}       # 4 dedicated vCPU, 16 GB, for each VM
 PROFILE=${PROFILE:-sized-2g}; SCALE=${FOOTPRINT_SCALE:-1}; REP=${REP:-1}
 TESTS=${TESTS:-backlog-2 backlog-10 backlog-50 producer restart}
 REF=${REF:-$(git -C "$HERE" rev-parse HEAD)}
+# The VMs clone the same repository and folder this script was started from (push your commit first).
+REPO_URL=${REPO_URL:-$(git -C "$HERE" remote get-url origin | sed -E 's#^git@([^:]+):#https://\1/#')}
+KIT_DIR=${KIT_DIR:-$(git -C "$HERE/.." rev-parse --show-prefix)}; KIT_DIR=${KIT_DIR:-.}
+META="fp-ref=$REF,fp-repo=$REPO_URL,fp-dir=$KIT_DIR"
 RUN=fp$(date +%m%d%H%M)r$REP
 OUT="$HERE/results/$PROFILE"; IN="$OUT/incoming"; mkdir -p "$IN"
 g() { gcloud --project "$PROJECT" --quiet "$@"; }
@@ -30,11 +34,11 @@ for t in $TESTS; do
   g compute instances create "$s" --zone "$ZONE" --machine-type "$MACHINE" \
     --image-family ubuntu-2404-lts-amd64 --image-project ubuntu-os-cloud --boot-disk-size 30GB \
     --create-disk=name=$s-data,device-name=data,size=100GB,type=pd-ssd,auto-delete=yes \
-    --metadata-from-file startup-script="$HERE/setup-vm.sh" --metadata fp-ref="$REF" \
+    --metadata-from-file startup-script="$HERE/setup-vm.sh" --metadata "$META" \
     --labels purpose=laserdata-footprint >/dev/null &
   g compute instances create "$c" --zone "$ZONE" --machine-type "$MACHINE" \
     --image-family ubuntu-2404-lts-amd64 --image-project ubuntu-os-cloud --boot-disk-size 30GB \
-    --metadata-from-file startup-script="$HERE/setup-vm.sh" --metadata fp-ref="$REF" \
+    --metadata-from-file startup-script="$HERE/setup-vm.sh" --metadata "$META" \
     --labels purpose=laserdata-footprint >/dev/null &
 done
 wait
@@ -50,11 +54,11 @@ start_test() {
   sshv "$c" "test -f ~/.ssh/id_ed25519 || ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519"
   local key; key=$(sshv "$c" "cat ~/.ssh/id_ed25519.pub")
   sshv "$s" "mkdir -p ~/.ssh && echo '$key' >> ~/.ssh/authorized_keys"
-  sshv "$s" "bash /opt/fp/repo/developer-pain/03-resource-footprint/gcp-vm/server-up.sh $PROFILE"
+  sshv "$s" "bash /opt/fp/kit/gcp-vm/server-up.sh $PROFILE"
   local tests=$t; [ "$t" = restart ] && tests="idle restart"
   sshv "$c" "cd /opt/fp && nohup setsid bash -c 'env REMOTE_SERVER=$ip PROFILE=$PROFILE TESTS=\"$tests\" FOOTPRINT_SCALE=$SCALE \
     CLIENT_CPUS=0-3 PYTHON=/opt/fp/venv/bin/python FOOTPRINT_OUT=/opt/fp/out \
-    bash repo/developer-pain/03-resource-footprint/run.sh > /opt/fp/run.log 2>&1; touch /opt/fp/done' > /dev/null 2>&1 < /dev/null &"
+    bash kit/run.sh > /opt/fp/run.log 2>&1; touch /opt/fp/done' > /dev/null 2>&1 < /dev/null &"
   echo "started $t (server $ip)"
 }
 for t in $TESTS; do start_test "$t" & done
